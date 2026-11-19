@@ -1143,51 +1143,126 @@
         document.getElementById('p2-altas-table').innerHTML = buildMatrix(dailyAltas, hist.metasNov.altas);
     }
 
+    
+    const units_hist = {"IAQ": {"Geral": {"V_Hist": [320.0, 316.0, 353.0, 351.0, 343.0, 315.0, 368.0, 423.0, 407.0, 357.0], "A_Hist": [262.0, 285.0, 310.0, 306.0, 299.0, 267.0, 318.0, 340.0, 386.0, 323.0], "V_Meta": 376.559, "A_Meta": 336.597, "V_FC": 349.76, "A_FC": 315.606}, "Canais": {"Inside Sales": {"V_Hist": [217.0, 219.0, 243.0, 234.0, 219.0, 204.0, 228.0, 305.0, 297.0, 243.0], "A_Hist": [174.0, 190.0, 207.0, 205.0, 185.0, 173.0, 201.0, 239.0, 292.0, 222.0], "V_Meta": 216.488, "A_Meta": 202.324, "V_FC": 216.488, "A_FC": 202.324}, "Digital": {"V_Hist": [41.0, 39.0, 44.0, 41.0, 30.0, 42.0, 58.0, 34.0, 10.0, 10.0], "A_Hist": [34.0, 35.0, 40.0, 32.0, 31.0, 28.0, 44.0, 29.0, 5.0, 8.0], "V_Meta": 53.0435, "A_Meta": 44.2105, "V_FC": 12.0, "A_FC": 10.2}, "Lojas": {"V_Hist": [57.0, 50.0, 61.0, 63.0, 62.0, 55.0, 48.0, 27.0, 27.0, 31.0], "A_Hist": [51.0, 53.0, 57.0, 58.0, 55.0, 54.0, 41.0, 22.0, 23.0, 27.0], "V_Meta": 42.2727, "A_Meta": 35.5743, "V_FC": 42.2727, "A_FC": 35.9318}, "PaP Pr\u00f3prio": {"V_Hist": [5.0, 7.0, 5.0, 12.0, 32.0, 7.0, 5.0, 10.0, 11.0, 14.0], "A_Hist": [3.0, 6.0, 6.0, 10.0, 28.0, 6.0, 4.0, 7.0, 10.0, 12.0], "V_Meta": 12.9379, "A_Meta": 10.7077, "V_FC": 19.0, "A_FC": 16.15}, "AA": {"V_Hist": [0.0, 1.0, 0.0, 1.0, 0.0, 7.0, 29.0, 47.0, 62.0, 59.0], "A_Hist": [0.0, 1.0, 0.0, 1.0, 0.0, 6.0, 28.0, 43.0, 56.0, 54.0], "V_Meta": 51.8174, "A_Meta": 43.7804, "V_FC": 60.0, "A_FC": 51.0}}}, "SPO": {"Geral": {"V_Hist": [392.0, 387.0, 429.0, 403.0, 447.0, 471.0, 571.0, 670.0, 674.0, 688.0], "A_Hist": [292.0, 303.0, 354.0, 349.0, 378.0, 383.0, 463.0, 564.0, 579.0, 585.0], "V_Meta": 627.791, "A_Meta": 522.466, "V_FC": 655.899, "A_FC": 550.25}, "Canais": {"Inside Sales": {"V_Hist": [297.0, 291.0, 302.0, 289.0, 289.0, 280.0, 272.0, 315.0, 355.0, 402.0], "A_Hist": [226.0, 230.0, 258.0, 247.0, 239.0, 246.0, 223.0, 242.0, 284.0, 331.0], "V_Meta": 358.14, "A_Meta": 301.663, "V_FC": 358.14, "A_FC": 301.663}, "Digital": {"V_Hist": [4.0, 6.0, 6.0, 6.0, 2.0, 19.0, 55.0, 24.0, 5.0, 1.0], "A_Hist": [4.0, 5.0, 4.0, 3.0, 1.0, 11.0, 42.0, 20.0, 5.0, 0.0], "V_Meta": 5.30435, "A_Meta": 0.0, "V_FC": 5.30435, "A_FC": 0.0}, "Lojas": {"V_Hist": [55.0, 63.0, 76.0, 80.0, 74.0, 74.0, 66.0, 42.0, 19.0, 26.0], "A_Hist": [47.0, 49.0, 67.0, 75.0, 72.0, 69.0, 59.0, 40.0, 26.0, 25.0], "V_Meta": 35.4545, "A_Meta": 32.9392, "V_FC": 35.4545, "A_FC": 30.1364}, "PaP Pr\u00f3prio": {"V_Hist": [33.0, 26.0, 45.0, 27.0, 81.0, 69.0, 70.0, 49.0, 31.0, 31.0], "A_Hist": [15.0, 18.0, 24.0, 24.0, 65.0, 42.0, 61.0, 44.0, 30.0, 27.0], "V_Meta": 28.6483, "A_Meta": 24.0923, "V_FC": 37.0, "A_FC": 31.45}, "AA": {"V_Hist": [3.0, 1.0, 0.0, 1.0, 1.0, 29.0, 108.0, 240.0, 264.0, 228.0], "A_Hist": [0.0, 1.0, 1.0, 0.0, 1.0, 15.0, 78.0, 218.0, 234.0, 202.0], "V_Meta": 200.243, "A_Meta": 163.771, "V_FC": 220.0, "A_FC": 187.0}}}, "SZN": {"Geral": {"V_Hist": [52.0, 57.0, 74.0, 99.0, 80.0, 63.0, 88.0, 92.0, 111.0, 71.0], "A_Hist": [50.0, 45.0, 66.0, 81.0, 84.0, 55.0, 77.0, 73.0, 98.0, 70.0], "V_Meta": 69.5102, "A_Meta": 66.7373, "V_FC": 80.0903, "A_FC": 74.1003}, "Canais": {"Inside Sales": {"V_Hist": [24.0, 35.0, 37.0, 54.0, 49.0, 42.0, 33.0, 39.0, 58.0, 45.0], "A_Hist": [22.0, 25.0, 29.0, 42.0, 51.0, 36.0, 29.0, 27.0, 50.0, 44.0], "V_Meta": 40.0903, "A_Meta": 40.1003, "V_FC": 40.0903, "A_FC": 40.1003}, "Digital": {"V_Hist": [8.0, 5.0, 11.0, 7.0, 6.0, 5.0, 16.0, 8.0, 2.0, 0.0], "A_Hist": [7.0, 5.0, 11.0, 7.0, 4.0, 5.0, 12.0, 6.0, 2.0, 0.0], "V_Meta": 0.0, "A_Meta": 0.0, "V_FC": 0.0, "A_FC": 0.0}, "Lojas": {"V_Hist": [18.0, 16.0, 25.0, 26.0, 19.0, 12.0, 18.0, 22.0, 12.0, 13.0], "A_Hist": [19.0, 14.0, 26.0, 24.0, 20.0, 10.0, 20.0, 22.0, 12.0, 10.0], "V_Meta": 17.7273, "A_Meta": 13.1757, "V_FC": 20.0, "A_FC": 17.0}, "PaP Pr\u00f3prio": {"V_Hist": [2.0, 1.0, 1.0, 11.0, 6.0, 1.0, 11.0, 17.0, 10.0, 6.0], "A_Hist": [2.0, 1.0, 0.0, 7.0, 9.0, 1.0, 9.0, 14.0, 8.0, 6.0], "V_Meta": 5.54483, "A_Meta": 5.35385, "V_FC": 10.0, "A_FC": 8.5}, "AA": {"V_Hist": [0.0, 0.0, 0.0, 1.0, 0.0, 3.0, 10.0, 6.0, 29.0, 7.0], "A_Hist": [0.0, 0.0, 0.0, 1.0, 0.0, 3.0, 7.0, 4.0, 26.0, 10.0], "V_Meta": 6.14783, "A_Meta": 8.10748, "V_FC": 10.0, "A_FC": 8.5}}}, "FAV | POA": {"Geral": {"V_Hist": [214.0, 183.0, 175.0, 185.0, 193.0, 220.0, 209.0, 241.0, 204.0, 204.0], "A_Hist": [191.0, 155.0, 159.0, 161.0, 179.0, 175.0, 191.0, 202.0, 182.0, 188.0], "V_Meta": 204.044, "A_Meta": 190.808, "V_FC": 211.525, "A_FC": 191.219}, "Canais": {"Inside Sales": {"V_Hist": [152.0, 133.0, 133.0, 146.0, 142.0, 140.0, 104.0, 147.0, 131.0, 151.0], "A_Hist": [137.0, 114.0, 123.0, 123.0, 136.0, 116.0, 103.0, 127.0, 118.0, 138.0], "V_Meta": 134.525, "A_Meta": 125.769, "V_FC": 134.525, "A_FC": 125.769}, "Digital": {"V_Hist": [13.0, 7.0, 6.0, 7.0, 7.0, 34.0, 56.0, 23.0, 8.0, 4.0], "A_Hist": [14.0, 6.0, 5.0, 6.0, 4.0, 23.0, 44.0, 20.0, 6.0, 4.0], "V_Meta": 21.2174, "A_Meta": 22.1053, "V_FC": 10.0, "A_FC": 8.5}, "Lojas": {"V_Hist": [42.0, 41.0, 35.0, 28.0, 42.0, 38.0, 25.0, 25.0, 18.0, 10.0], "A_Hist": [36.0, 34.0, 30.0, 28.0, 37.0, 32.0, 25.0, 21.0, 17.0, 10.0], "V_Meta": 13.6364, "A_Meta": 13.1757, "V_FC": 28.0, "A_FC": 23.8}, "PaP Pr\u00f3prio": {"V_Hist": [7.0, 2.0, 1.0, 4.0, 2.0, 0.0, 2.0, 24.0, 16.0, 9.0], "A_Hist": [4.0, 1.0, 1.0, 3.0, 2.0, 0.0, 3.0, 12.0, 12.0, 7.0], "V_Meta": 8.31724, "A_Meta": 6.24615, "V_FC": 10.0, "A_FC": 8.5}, "AA": {"V_Hist": [0.0, 0.0, 0.0, 0.0, 0.0, 8.0, 22.0, 22.0, 31.0, 30.0], "A_Hist": [0.0, 0.0, 0.0, 1.0, 0.0, 4.0, 16.0, 22.0, 29.0, 29.0], "V_Meta": 26.3478, "A_Meta": 23.5117, "V_FC": 29.0, "A_FC": 24.65}}}, "AUJ | MCZ": {"Geral": {"V_Hist": [126.0, 111.0, 113.0, 115.0, 108.0, 103.0, 144.0, 128.0, 165.0, 163.0], "A_Hist": [81.0, 90.0, 89.0, 93.0, 81.0, 70.0, 116.0, 104.0, 133.0, 138.0], "V_Meta": 164.734, "A_Meta": 135.297, "V_FC": 159.271, "A_FC": 128.289}, "Canais": {"Inside Sales": {"V_Hist": [87.0, 70.0, 76.0, 72.0, 64.0, 64.0, 72.0, 84.0, 87.0, 90.0], "A_Hist": [59.0, 58.0, 60.0, 53.0, 50.0, 42.0, 53.0, 63.0, 75.0, 67.0], "V_Meta": 80.1806, "A_Meta": 61.0618, "V_FC": 80.1806, "A_FC": 61.0618}, "Digital": {"V_Hist": [13.0, 10.0, 10.0, 15.0, 15.0, 18.0, 13.0, 9.0, 4.0, 3.0], "A_Hist": [7.0, 11.0, 8.0, 12.0, 9.0, 10.0, 10.0, 8.0, 3.0, 2.0], "V_Meta": 15.913, "A_Meta": 11.0526, "V_FC": 5.0, "A_FC": 4.25}, "Lojas": {"V_Hist": [17.0, 24.0, 23.0, 22.0, 24.0, 16.0, 37.0, 17.0, 13.0, 14.0], "A_Hist": [15.0, 16.0, 21.0, 21.0, 18.0, 13.0, 35.0, 16.0, 12.0, 13.0], "V_Meta": 19.0909, "A_Meta": 17.1284, "V_FC": 19.0909, "A_FC": 16.2273}, "PaP Pr\u00f3prio": {"V_Hist": [8.0, 7.0, 4.0, 6.0, 5.0, 2.0, 7.0, 6.0, 15.0, 8.0], "A_Hist": [0.0, 5.0, 0.0, 7.0, 4.0, 2.0, 6.0, 7.0, 12.0, 8.0], "V_Meta": 7.3931, "A_Meta": 7.13846, "V_FC": 10.0, "A_FC": 8.5}, "AA": {"V_Hist": [1.0, 0.0, 0.0, 0.0, 0.0, 3.0, 15.0, 12.0, 46.0, 48.0], "A_Hist": [NaN, NaN, NaN, NaN, NaN, 3.0, 12.0, 10.0, 31.0, 48.0], "V_Meta": 42.1565, "A_Meta": 38.9159, "V_FC": 45.0, "A_FC": 38.25}}}, "SPB": {"Geral": {"V_Hist": [141.0, 144.0, 146.0, 171.0, 134.0, 147.0, 187.0, 182.0, 148.0, 124.0], "A_Hist": [97.0, 116.0, 130.0, 137.0, 127.0, 110.0, 158.0, 150.0, 137.0, 109.0], "V_Meta": 129.182, "A_Meta": 120.267, "V_FC": 131.277, "A_FC": 111.617}, "Canais": {"Inside Sales": {"V_Hist": [108.0, 110.0, 113.0, 122.0, 83.0, 75.0, 80.0, 108.0, 114.0, 83.0], "A_Hist": [73.0, 87.0, 94.0, 92.0, 79.0, 55.0, 62.0, 82.0, 104.0, 69.0], "V_Meta": 73.9443, "A_Meta": 62.8845, "V_FC": 73.9443, "A_FC": 62.8845}, "Digital": {"V_Hist": [10.0, 13.0, 13.0, 5.0, 9.0, 15.0, 25.0, 14.0, 3.0, 2.0], "A_Hist": [5.0, 12.0, 15.0, 5.0, 8.0, 10.0, 21.0, 11.0, 2.0, 3.0], "V_Meta": 10.6087, "A_Meta": 16.5789, "V_FC": 5.0, "A_FC": 4.25}, "Lojas": {"V_Hist": [23.0, 20.0, 20.0, 44.0, 42.0, 56.0, 67.0, 43.0, 18.0, 21.0], "A_Hist": [19.0, 17.0, 20.0, 40.0, 40.0, 45.0, 64.0, 40.0, 20.0, 21.0], "V_Meta": 28.6364, "A_Meta": 27.6689, "V_FC": 28.6364, "A_FC": 24.3409}, "PaP Pr\u00f3prio": {"V_Hist": [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0], "A_Hist": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0], "V_Meta": 3.69655, "A_Meta": 1.78462, "V_FC": 3.69655, "A_FC": 3.14207}, "AA": {"V_Hist": [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 15.0, 16.0, 12.0, 14.0], "A_Hist": [NaN, NaN, NaN, NaN, NaN, 0.0, 11.0, 16.0, 10.0, 14.0], "V_Meta": 12.2957, "A_Meta": 11.3505, "V_FC": 20.0, "A_FC": 17.0}}}, "TAU": {"Geral": {"V_Hist": [0.0, 0.0, 0.0, 6.0, 10.0, 47.0, 126.0, 153.0, 106.0, 90.0], "A_Hist": [0.0, 0.0, 0.0, 4.0, 11.0, 35.0, 106.0, 145.0, 99.0, 88.0], "V_Meta": 96.1683, "A_Meta": 87.4789, "V_FC": 121.959, "A_FC": 104.167}, "Canais": {"Inside Sales": {"V_Hist": [NaN, NaN, NaN, NaN, NaN, 11.0, 14.0, 20.0, 25.0, 21.0], "A_Hist": [NaN, NaN, NaN, NaN, NaN, 9.0, 11.0, 19.0, 21.0, 18.0], "V_Meta": 18.7088, "A_Meta": 16.4047, "V_FC": 18.7088, "A_FC": 16.4047}, "Digital": {"V_Hist": [NaN, NaN, NaN, NaN, NaN, 1.0, 3.0, 3.0, 0.0, 2.0], "A_Hist": [NaN, NaN, NaN, NaN, NaN, 1.0, 3.0, 2.0, 0.0, 1.0], "V_Meta": 10.6087, "A_Meta": 5.52632, "V_FC": 5.0, "A_FC": 4.25}, "Lojas": {"V_Hist": [NaN, NaN, NaN, 6.0, 10.0, 18.0, 29.0, 33.0, 17.0, 13.0], "A_Hist": [NaN, NaN, NaN, 4.0, 11.0, 10.0, 30.0, 34.0, 18.0, 13.0], "V_Meta": 17.7273, "A_Meta": 17.1284, "V_FC": 28.0, "A_FC": 23.8}, "PaP Pr\u00f3prio": {"V_Hist": [NaN, NaN, NaN, NaN, NaN, 16.0, 73.0, 71.0, 47.0, 37.0], "A_Hist": [NaN, NaN, NaN, NaN, NaN, 15.0, 55.0, 68.0, 46.0, 37.0], "V_Meta": 34.1931, "A_Meta": 33.0154, "V_FC": 55.25, "A_FC": 46.9625}, "AA": {"V_Hist": [NaN, NaN, NaN, NaN, NaN, 1.0, 7.0, 26.0, 17.0, 17.0], "A_Hist": [NaN, NaN, NaN, NaN, NaN, 0.0, 7.0, 22.0, 14.0, 19.0], "V_Meta": 14.9304, "A_Meta": 15.4042, "V_FC": 15.0, "A_FC": 12.75}}}};
+
     function renderUnidades() {
-        const { blReg } = getRegionMetrics();
+        const { du, blReg } = getRegionMetrics();
+        const hist = STATE.historico[currentRegion];
+        const meses = hist.meses.slice(0, 10); // Jan to Out
+        
+        // Calculate current month data from blReg
         const uM = {};
         blReg.forEach(r => {
-            const u = r[2] || 'OUTRAS', ch = mapChannel(r[1]).short, v = Number(r[6]) || 0, a = Number(r[7]) || 0;
+            let u = r[2] || 'OUTRAS';
+            if (u.startsWith('AMIGO SP ')) u = u.replace('AMIGO SP ', '');
+            if (u.startsWith('AMIGO RJ ')) u = u.replace('AMIGO RJ ', '');
+            if (u === 'SPO') u = 'SPO'; // keep standard names
+            
+            const ch = mapChannel(r[1]).short;
+            const v = Number(r[6]) || 0;
+            const a = Number(r[7]) || 0;
+            
             if (!uM[u]) uM[u] = { v: 0, a: 0, c: { 'Inside Sales': {v:0,a:0}, 'Digital': {v:0,a:0}, 'Lojas': {v:0,a:0}, 'PaP': {v:0,a:0}, 'AA': {v:0,a:0} } };
             uM[u].v += v; uM[u].a += a;
-            if (uM[u].c[ch]) { uM[u].c[ch].v += v; uM[u].c[ch].a += a; }
+            
+            // Map PaP and AA names to match the historical data
+            let ch_hist = ch;
+            if (uM[u].c[ch_hist]) { 
+                uM[u].c[ch_hist].v += v; 
+                uM[u].c[ch_hist].a += a; 
+            }
         });
 
         let h = `<table><thead>
             <tr>
-                <th rowspan="2" class="left grp-sep">Unidade (Local)</th>
-                <th colspan="3" class="grp-sep" style="background:#DCE7F5;">TOTAL UNIDADE</th>
-                <th colspan="2" class="grp-sep">Lojas</th>
-                <th colspan="2" class="grp-sep">PaP Próprio</th>
-                <th colspan="2" class="grp-sep">Parceiros AA</th>
-                <th colspan="2" class="grp-sep">Inside Sales</th>
-                <th colspan="2">Digital</th>
+                <th rowspan="2" class="left grp-sep">Local (Área)</th>
+                <th colspan="${meses.length + 6}" class="grp-sep" style="background:#DCE7F5;">VENDAS</th>
+                <th colspan="${meses.length + 6}" class="grp-sep" style="background:#DCE7F5;">ALTAS</th>
+                <th rowspan="2" style="background:#DCE7F5;">Eficiência</th>
             </tr>
-            <tr>
-                <th style="background:#DCE7F5;">Vendas</th><th style="background:#DCE7F5;">Altas</th><th class="grp-sep" style="background:#DCE7F5;">Efic.</th>
-                <th>Altas</th><th class="grp-sep">Efic.</th>
-                <th>Altas</th><th class="grp-sep">Efic.</th>
-                <th>Altas</th><th class="grp-sep">Efic.</th>
-                <th>Altas</th><th class="grp-sep">Efic.</th>
-                <th>Altas</th><th>Efic.</th>
-            </tr>
-        </thead><tbody>`;
+            <tr>`;
+            
+        // Vendas headers
+        meses.forEach(m => h += `<th>${m}</th>`);
+        h += `<th>Meta Nov</th><th>FC Out</th><th>Real</th><th>Projeção</th><th>% Atng. Projeção</th><th class="grp-sep">M-1</th>`;
+        // Altas headers
+        meses.forEach(m => h += `<th>${m}</th>`);
+        h += `<th>Meta Nov</th><th>FC Out</th><th>Real</th><th>Projeção</th><th>% Atng. Projeção</th><th class="grp-sep">M-1</th>`;
+        
+        h += `</tr></thead><tbody>`;
 
-        Object.keys(uM).sort((a, b) => uM[b].a - uM[a].a).forEach(u => {
-            const d = uM[u], ef = d.v ? (d.a / d.v)*100 : 0;
-            const cList = ['Lojas', 'PaP', 'AA', 'Inside Sales', 'Digital'];
-            h += `<tr>
-                <td class="left grp-sep"><b>${u}</b></td>
-                <td>${fmtInt(d.v)}</td><td><b>${fmtInt(d.a)}</b></td><td class="grp-sep ${getEficClass(ef)}">${fmtPct(ef)}</td>`;
-            cList.forEach((ch, idx) => {
-                const cv = d.c[ch].v, ca = d.c[ch].a;
-                const cef = cv > 0 ? (ca / cv) * 100 : 0;
-                const sep = idx < cList.length - 1 ? 'grp-sep' : '';
-                const hasData = (cv > 0 || ca > 0);
-                h += `<td>${fmtInt(ca)}</td><td class="${sep} ${hasData ? getEficClass(cef) : ''}">${hasData ? fmtPct(cef) : '-'}</td>`;
+        // Render each unit
+        const cList = ['Inside Sales', 'Digital', 'Lojas', 'PaP', 'AA'];
+        const hist_ch_map = {'Inside Sales': 'Inside Sales', 'Digital': 'Digital', 'Lojas': 'Lojas', 'PaP': 'PaP Próprio', 'AA': 'AA'};
+        
+        Object.keys(units_hist).forEach(u_full => {
+            const u = u_full.replace('AMIGO SP ', '').replace('AMIGO RJ ', '');
+            if (!uM[u]) return; // Skip if no current data for unit
+            
+            const g = units_hist[u_full].Geral;
+            const c_data = units_hist[u_full].Canais;
+            const cur_u = uM[u];
+            
+            // Unit Total Row (Geral)
+            const vProj = cur_u.v * du.fator;
+            const aProj = cur_u.a * du.fator;
+            const vPct = g.V_Meta > 0 ? (vProj / g.V_Meta) * 100 : 0;
+            const aPct = g.A_Meta > 0 ? (aProj / g.A_Meta) * 100 : 0;
+            const vM1 = g.V_Hist[9] > 0 ? ((vProj / g.V_Hist[9]) - 1) * 100 : 0;
+            const aM1 = g.A_Hist[9] > 0 ? ((aProj / g.A_Hist[9]) - 1) * 100 : 0;
+            const ef = cur_u.v > 0 ? (cur_u.a / cur_u.v) * 100 : 0;
+
+            h += `<tr class="row-total">
+                <td class="left grp-sep"><b>${u}</b></td>`;
+                
+            // Vendas Geral
+            g.V_Hist.forEach(val => h += `<td class="hist-col">${fmtInt(val)}</td>`);
+            h += `<td>${fmtInt(g.V_Meta)}</td><td>${fmtInt(g.V_FC)}</td><td><b>${fmtInt(cur_u.v)}</b></td><td style="color:var(--evo-navy);font-weight:700">${fmtInt(vProj)}</td>
+                  <td class="${vPct >= 100 ? 'val-green' : 'val-red'}">${fmtPct(vPct)}</td><td class="grp-sep ${vM1 >= 0 ? 'val-green' : 'val-red'}">${vM1 >= 0 ? '+' : ''}${fmtPct(vM1)}</td>`;
+                  
+            // Altas Geral
+            g.A_Hist.forEach(val => h += `<td class="hist-col">${fmtInt(val)}</td>`);
+            h += `<td>${fmtInt(g.A_Meta)}</td><td>${fmtInt(g.A_FC)}</td><td><b>${fmtInt(cur_u.a)}</b></td><td style="color:var(--evo-navy);font-weight:700">${fmtInt(aProj)}</td>
+                  <td class="${aPct >= 100 ? 'val-green' : 'val-red'}">${fmtPct(aPct)}</td><td class="grp-sep ${aM1 >= 0 ? 'val-green' : 'val-red'}">${aM1 >= 0 ? '+' : ''}${fmtPct(aM1)}</td>`;
+                  
+            h += `<td class="${getEficClass(ef)}">${fmtPct(ef)}</td></tr>`;
+            
+            // Channels Rows
+            cList.forEach(ch => {
+                const hist_ch = hist_ch_map[ch];
+                if (!c_data[hist_ch]) return; // Skip if channel has no hist data
+                const ch_hist = c_data[hist_ch];
+                const cur_ch = cur_u.c[ch] || {v:0,a:0};
+                
+                const cvProj = cur_ch.v * du.fator;
+                const caProj = cur_ch.a * du.fator;
+                const cvPct = ch_hist.V_Meta > 0 ? (cvProj / ch_hist.V_Meta) * 100 : 0;
+                const caPct = ch_hist.A_Meta > 0 ? (caProj / ch_hist.A_Meta) * 100 : 0;
+                const cvM1 = ch_hist.V_Hist[9] > 0 ? ((cvProj / ch_hist.V_Hist[9]) - 1) * 100 : 0;
+                const caM1 = ch_hist.A_Hist[9] > 0 ? ((caProj / ch_hist.A_Hist[9]) - 1) * 100 : 0;
+                const cef = cur_ch.v > 0 ? (cur_ch.a / cur_ch.v) * 100 : 0;
+                
+                // Keep PaP as 'PaP Próprio' visually in the table just like Excel
+                const showName = (ch === 'PaP') ? 'PaP Próprio' : ch;
+                
+                h += `<tr style="${ch === 'Lojas' ? 'background:#FEF9C3' : ''}">
+                    <td class="left grp-sep"><b>${showName}</b></td>`;
+                
+                // Vendas Channel
+                ch_hist.V_Hist.forEach(val => h += `<td class="hist-col">${fmtInt(val)}</td>`);
+                h += `<td>${fmtInt(ch_hist.V_Meta)}</td><td>${fmtInt(ch_hist.V_FC)}</td><td>${fmtInt(cur_ch.v)}</td><td style="color:var(--evo-blue);font-weight:700">${fmtInt(cvProj)}</td>
+                      <td class="${cvPct >= 100 ? 'val-green' : 'val-red'}">${fmtPct(cvPct)}</td><td class="grp-sep ${cvM1 >= 0 ? 'val-green' : 'val-red'}">${cvM1 >= 0 ? '+' : ''}${fmtPct(cvM1)}</td>`;
+
+                // Altas Channel
+                ch_hist.A_Hist.forEach(val => h += `<td class="hist-col">${fmtInt(val)}</td>`);
+                h += `<td>${fmtInt(ch_hist.A_Meta)}</td><td>${fmtInt(ch_hist.A_FC)}</td><td><b>${fmtInt(cur_ch.a)}</b></td><td style="color:var(--evo-blue);font-weight:700">${fmtInt(caProj)}</td>
+                      <td class="${caPct >= 100 ? 'val-green' : 'val-red'}">${fmtPct(caPct)}</td><td class="grp-sep ${caM1 >= 0 ? 'val-green' : 'val-red'}">${caM1 >= 0 ? '+' : ''}${fmtPct(caM1)}</td>`;
+                
+                h += `<td class="${getEficClass(cef)}">${fmtPct(cef)}</td></tr>`;
             });
-            h += `</tr>`;
         });
+        
         h += `</tbody></table>`;
         document.getElementById('p3-unidades-table').innerHTML = h;
     }
