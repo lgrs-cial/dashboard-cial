@@ -1026,23 +1026,47 @@
         const mA = channels.reduce((s, c) => s + (hist.metasNov.altas[c] || 0), 0);
         const fA = channels.reduce((s, c) => s + (hist.metasNov.fcAltas[c] || 0), 0);
 
+        const m1Idx = Math.max(0, (hist.meses || []).length - 1);
+        const mesM1Label = (hist.meses && hist.meses[m1Idx]) || 'M-1';
+        const m1ValV = channels.reduce((s, c) => s + ((hist.vendas[c] && hist.vendas[c][m1Idx]) || 0), 0);
+        const m1ValA = channels.reduce((s, c) => s + ((hist.altas[c] && hist.altas[c][m1Idx]) || 0), 0);
+        const m1PctV = m1ValV > 0 ? ((pv / m1ValV) - 1) * 100 : 0;
+        const m1PctA = m1ValA > 0 ? ((pa / m1ValA) - 1) * 100 : 0;
+        const m1Efic = m1ValV > 0 ? (m1ValA / m1ValV) * 100 : 0;
+
         const pctA = fA ? (pa / fA) * 100 : 0;
         const pctV = fV ? (pv / fV) * 100 : 0;
         const efic = totV ? (totA / totV) * 100 : 0;
+        const m1EficDiff = efic - m1Efic;
 
         document.getElementById('p1-kpis').innerHTML = `
             <div class="kpi-card cyan">
-                <div class="kpi-label">Vendas (Real / Proj.) <span class="badge ${pctV >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctV)} FC</span></div>
+                <div class="kpi-label">
+                    <span>Vendas (Real / Proj.)</span>
+                    <span style="display:inline-flex; gap:4px; align-items:center;">
+                        <span class="badge ${pctV >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctV)} FC</span>
+                        <span class="badge ${m1PctV >= 0 ? 'badge-good' : 'badge-bad'}" title="Projeção vs M-1 (${mesM1Label}: ${fmtInt(m1ValV)})">M-1: ${m1PctV >= 0 ? '+' : ''}${fmtPct(m1PctV)}</span>
+                    </span>
+                </div>
                 <div class="kpi-value">${fmtInt(totV)} <span class="proj-muted">/ ${fmtInt(pv)}</span></div>
-                <div class="kpi-sub">Meta: ${fmtInt(mV)} | FC: ${fmtInt(fV)}</div>
+                <div class="kpi-sub">Meta: ${fmtInt(mV)} | FC: ${fmtInt(fV)} | M-1 (${mesM1Label}): <b>${fmtInt(m1ValV)}</b></div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">Altas (Real / Proj.) <span class="badge ${pctA >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctA)} FC</span></div>
+                <div class="kpi-label">
+                    <span>Altas (Real / Proj.)</span>
+                    <span style="display:inline-flex; gap:4px; align-items:center;">
+                        <span class="badge ${pctA >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctA)} FC</span>
+                        <span class="badge ${m1PctA >= 0 ? 'badge-good' : 'badge-bad'}" title="Projeção vs M-1 (${mesM1Label}: ${fmtInt(m1ValA)})">M-1: ${m1PctA >= 0 ? '+' : ''}${fmtPct(m1PctA)}</span>
+                    </span>
+                </div>
                 <div class="kpi-value">${fmtInt(totA)} <span class="proj-muted">/ ${fmtInt(pa)}</span></div>
-                <div class="kpi-sub">Meta: ${fmtInt(mA)} | FC: ${fmtInt(fA)}</div>
+                <div class="kpi-sub">Meta: ${fmtInt(mA)} | FC: ${fmtInt(fA)} | M-1 (${mesM1Label}): <b>${fmtInt(m1ValA)}</b></div>
             </div>
             <div class="kpi-card green">
-                <div class="kpi-label">Eficiência (Altas / Vendas)</div>
+                <div class="kpi-label">
+                    <span>Eficiência (Altas / Vendas)</span>
+                    <span class="badge ${m1EficDiff >= 0 ? 'badge-good' : 'badge-bad'}" title="Eficiência Atual vs M-1 (${mesM1Label}: ${fmtPct(m1Efic)})">M-1 (${mesM1Label}): ${fmtPct(m1Efic)}</span>
+                </div>
                 <div class="kpi-value" style="color:${efic >= 90 ? 'var(--green)' : (efic >= 85 ? '#B45309' : 'var(--red)')}">${fmtPct(efic)}</div>
                 <div class="kpi-sub">Régua: &lt;85% Verm. | 85-90% Amar. | &ge;90% Verde</div>
             </div>
@@ -1200,7 +1224,7 @@
         h += `<th>Meta</th><th class="grp-sep">FC</th><th>Real</th><th class="grp-sep">Proj.</th><th>% FC</th><th class="grp-sep">M-1</th><th>Efic.</th></tr></thead><tbody>`;
 
         channels.forEach(c => {
-            const r = tR[c], p = r * du.fator, m = tM[c] || 0, fc = tF[c] || 0, out = tS[c][9] || 0, pFc = fc ? (p/fc)*100 : 0, m1 = out ? ((p/out)-1)*100 : 0;
+            const r = tR[c], p = r * du.fator, m = tM[c] || 0, fc = tF[c] || 0, out = tS[c][m1Idx] || 0, pFc = fc ? (p/fc)*100 : 0, m1 = out ? ((p/out)-1)*100 : 0;
             const eficReal = realVendas[c] > 0 ? (realAltas[c] / realVendas[c]) * 100 : 0;
             h += `<tr><td class="left grp-sep"><b>${c}</b></td>`;
             tS[c].forEach((v, idx) => h += `<td class="hist-col ${idx === tS[c].length - 1 ? 'grp-sep' : ''}">${fmtInt(v)}</td>`);
@@ -1211,7 +1235,7 @@
         });
 
         const sM = channels.reduce((s, c) => s + (tM[c] || 0), 0), sF = channels.reduce((s, c) => s + (tF[c] || 0), 0);
-        const totM1 = channels.reduce((s, c) => s + tS[c][9], 0);
+        const totM1 = channels.reduce((s, c) => s + (tS[c][m1Idx] || 0), 0);
         const totM1Pct = totM1 ? ((projCur/totM1)-1)*100 : 0;
         const totPctF = sF ? (projCur/sF)*100 : 0;
 
@@ -2505,13 +2529,11 @@
         const canal = document.getElementById('hist-edit-canal').value;
         const metric = document.getElementById('hist-edit-metric').value;
         const meses = STATE.historico[currentRegion].meses || [];
-        const lines = raw.split(/
-?
-/).filter(l => l.trim());
+        const lines = raw.split(/\r?\n/).filter(l => l.trim());
         let count = 0;
 
         lines.forEach(line => {
-            const cols = line.includes('	') ? line.split('	') : line.split(';');
+            const cols = line.includes('\t') ? line.split('\t') : line.split(';');
             if (cols.length < 2) return;
             const rawName = cols[0].trim();
             const k = normName(rawName);
