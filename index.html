@@ -2430,9 +2430,13 @@
             // Try standard YYYY-MM-DD
             let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
             if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
-            // Try DD/MM/YYYY
-            m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-            if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+            // Try DD/MM/YYYY or DD/MM/YY
+            m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})/);
+            if (m) {
+                let y = m[3];
+                if (y.length === 2) y = "20" + y; // Assume 2000s for 2-digit years
+                return `${y}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+            }
             return null;
         }
 
