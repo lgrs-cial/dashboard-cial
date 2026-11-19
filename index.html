@@ -1464,7 +1464,7 @@
                 const caM1 = caOut > 0 ? ((caProj / caOut) - 1) * 100 : 0;
                 const cef = curCh.v > 0 ? (curCh.a / curCh.v) * 100 : 0;
                 const showName = (ch === 'PaP') ? 'PaP Próprio' : ch;
-                const rowCls = ch === 'Lojas' ? 'row-lojas' : '';
+                const rowCls = '';
 
                 h += `<tr class="${rowCls}">
                     <td class="left sticky-col">${showName}</td>
@@ -1502,11 +1502,40 @@
         document.getElementById('p3-unidades-table').innerHTML = h;
     }
 
+    let showHistCanais = false;
+    let histCanaisTimer = null;
+
+    function toggleHistCanais(forceState) {
+        if (typeof forceState === 'boolean') {
+            showHistCanais = forceState;
+        } else {
+            showHistCanais = !showHistCanais;
+        }
+        if (histCanaisTimer) clearTimeout(histCanaisTimer);
+        if (showHistCanais) {
+            histCanaisTimer = setTimeout(() => {
+                showHistCanais = false;
+                renderCanaisPanel();
+            }, 3600000); // Recolhe após 1 hora
+        }
+        renderCanaisPanel();
+    }
+
     function renderCanaisPanel() {
         const { du, blReg } = getRegionMetrics();
         const query = normName(document.getElementById('search-seller').value);
         const pM = {};
-        const showUnidadeCol = (channelFilter !== 'AA' && channelFilter !== 'Digital');
+
+        // Histórico e Posição do Calendário
+        const hist = STATE.historico[currentRegion];
+        const meses = hist.meses || [];
+        const totalMeses = meses.length;
+        const m1Index = Math.max(0, totalMeses - 1);
+        const mesAtualNome = (STATE.config.mesVigente || 'Novembro/26').split('/')[0].slice(0, 3);
+        const mesM1Nome = meses[m1Index] || 'M-1';
+        const firstHistMes = meses[0] || 'Jan';
+        const prevHistMes = m1Index > 0 ? meses[m1Index - 1] : firstHistMes;
+        const rangeLabel = m1Index > 0 ? `${firstHistMes}–${prevHistMes}` : 'Anterior';
 
         STATE.agents.forEach(a => {
             if (a[2] !== currentRegion || a[7] === 'Inativo') return;
@@ -1520,14 +1549,8 @@
             if (info.reg === currentRegion && info.status !== 'Inativo') {
                 const key = fantasia.toUpperCase().trim();
                 pM[key] = {
-                    nome: fantasia,
-                    un: '-',
-                    ch: 'AA',
-                    ar: 'Parceiro AA',
-                    mV: Number(info.mV) || 0,
-                    mA: Number(info.mA) || 0,
-                    v: 0,
-                    a: 0
+                    nome: fantasia, un: '-', ch: 'AA', ar: 'Parceiro AA',
+                    mV: Number(info.mV) || 0, mA: Number(info.mA) || 0, v: 0, a: 0
                 };
             }
         });
@@ -1547,9 +1570,7 @@
             }
 
             if (!key || key === 'NAO IDENTIFICADO' || key === 'NÃO IDENTIFICADO') return;
-            if (!pM[key]) {
-                pM[key] = { nome: key, un: (ch === 'AA' || ch === 'Digital') ? '-' : r[2], ch: ch, ar: ch, mV: 0, mA: 0, v: 0, a: 0 };
-            }
+            if (!pM[key]) pM[key] = { nome: key, un: (ch === 'AA' || ch === 'Digital') ? '-' : r[2], ch: ch, ar: ch, mV: 0, mA: 0, v: 0, a: 0 };
             pM[key].v += Number(r[6]) || 0;
             pM[key].a += Number(r[7]) || 0;
         });
@@ -1562,35 +1583,82 @@
         list.sort((a, b) => (b.a - a.a) || (b.mA - a.mA));
 
         const colNomeStr = channelFilter === 'AA' ? 'Parceiro AA (Nome Fantasia)' : (channelFilter === 'Digital' ? 'Fornecedor Digital' : 'Vendedor');
+        const histColsCount = showHistCanais ? totalMeses : 1;
+        const blockSpan = histColsCount + 5; // Meses Visíveis + Meta + Real + Proj + % Proj + M-1
 
-        let h = `<table><thead><tr>
-            <th class="left">${colNomeStr}</th>
-            ${showUnidadeCol ? '<th>Unidade</th>' : ''}
-            <th class="grp-sep">Área</th>
-            <th>Meta Vendas</th><th class="grp-sep">Vendas Real</th>
-            <th>Meta Altas</th><th>Altas Real</th><th>Proj. Altas</th><th class="grp-sep">% Tendência</th>
-            <th>Eficiência</th>
-        </tr></thead><tbody>`;
+        let h = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">
+                <i class="fa-solid fa-eye-slash"></i> ${showHistCanais ? `Exibindo colunas de histórico (${firstHistMes}–${mesM1Nome})` : `Meses anteriores (${rangeLabel}) ocultos • M-1 (${mesM1Nome}) visível`}
+            </div>
+            <button class="btn secondary" onclick="toggleHistCanais()"><i class="fa-solid ${showHistCanais ? 'fa-compress' : 'fa-clock-rotate-left'}"></i> ${showHistCanais ? `Ocultar Histórico` : `Exibir Histórico (${rangeLabel})`}</button>
+        </div>`;
+
+        h += `<div class="units-scroll-wrap"><table class="tbl-unidades"><thead>
+            <tr>
+                <th rowspan="2" class="left sticky-col" style="min-width:160px;">${colNomeStr}</th>
+                <th class="block-gap" rowspan="2"></th>
+                <th colspan="${blockSpan}" class="th-vendas-grp">VENDAS</th>
+                <th class="block-gap" rowspan="2"></th>
+                <th colspan="${blockSpan}" class="th-altas-grp">ALTAS</th>
+                <th class="block-gap" rowspan="2"></th>
+                <th rowspan="2" style="background:#DCE7F5;">Efic.</th>
+            </tr>
+            <tr>`;
+
+        // Cabeçalhos VENDAS
+        if (showHistCanais) {
+            for (let idx = 0; idx < m1Index; idx++) h += `<th class="th-vendas-sub">${meses[idx]}</th>`;
+        }
+        h += `<th class="th-vendas-sub">${mesM1Nome}</th>`;
+        h += `<th class="th-vendas-sub">Meta ${mesAtualNome}</th><th class="th-vendas-sub">Real</th><th class="th-vendas-sub">Proj.</th><th class="th-vendas-sub">% Proj.</th><th class="th-vendas-sub">M-1</th>`;
+
+        // Cabeçalhos ALTAS
+        if (showHistCanais) {
+            for (let idx = 0; idx < m1Index; idx++) h += `<th class="th-altas-sub">${meses[idx]}</th>`;
+        }
+        h += `<th class="th-altas-sub">${mesM1Nome}</th>`;
+        h += `<th class="th-altas-sub">Meta ${mesAtualNome}</th><th class="th-altas-sub">Real</th><th class="th-altas-sub">Proj.</th><th class="th-altas-sub">% Proj.</th><th class="th-altas-sub">M-1</th>`;
+        h += `</tr></thead><tbody>`;
 
         list.forEach(i => {
-            const p = i.a * du.fator;
-            const t = i.mA > 0 ? (p / i.mA) * 100 : 0;
+            const pv = i.v * du.fator;
+            const pa = i.a * du.fator;
+            const tv = i.mV > 0 ? (pv / i.mV) * 100 : 0;
+            const ta = i.mA > 0 ? (pa / i.mA) * 100 : 0;
             const e = i.v > 0 ? (i.a / i.v) * 100 : 0;
             const hasV = (i.v > 0 || i.a > 0);
+            
             h += `<tr>
-                <td class="left"><b>${i.nome}</b></td>
-                ${showUnidadeCol ? `<td>${i.un}</td>` : ''}
-                <td class="grp-sep">${i.ar}</td>
-                <td>${i.mV > 0 ? fmtInt(i.mV) : '-'}</td>
-                <td class="grp-sep">${fmtInt(i.v)}</td>
-                <td>${i.mA > 0 ? fmtInt(i.mA) : '-'}</td>
-                <td><b>${fmtInt(i.a)}</b></td>
-                <td style="color:var(--evo-blue);font-weight:700">${fmtInt(p)}</td>
-                <td class="grp-sep ${i.mA > 0 ? (t >= 100 ? 'val-green' : 'val-red') : ''}">${i.mA > 0 ? fmtPct(t) : '-'}</td>
-                <td class="${hasV ? getEficClass(e) : ''}">${hasV ? fmtPct(e) : '-'}</td>
+                <td class="left sticky-col" title="${i.un} - ${i.ar}"><b>${i.nome}</b></td>
+                <td class="block-gap"></td>`;
+                
+            // Vendas Dados
+            for (let idx = 0; idx <= m1Index; idx++) {
+                if (!showHistCanais && idx < m1Index) continue;
+                h += `<td class="hist-col">-</td>`; // Base M-X
+            }
+            h += `<td>${i.mV > 0 ? fmtInt(i.mV) : '-'}</td>
+                  <td>${fmtInt(i.v)}</td>
+                  <td style="color:var(--evo-navy);font-weight:700">${fmtInt(pv)}</td>
+                  <td class="${i.mV > 0 ? (tv >= 100 ? 'val-green' : 'val-red') : ''}">${i.mV > 0 ? fmtPct(tv) : '-'}</td>
+                  <td class="${i.mV > 0 ? 'val-red' : ''}">-</td>
+                  <td class="block-gap"></td>`;
+
+            // Altas Dados
+            for (let idx = 0; idx <= m1Index; idx++) {
+                if (!showHistCanais && idx < m1Index) continue;
+                h += `<td class="hist-col">-</td>`; // Base M-X
+            }
+            h += `<td>${i.mA > 0 ? fmtInt(i.mA) : '-'}</td>
+                  <td><b>${fmtInt(i.a)}</b></td>
+                  <td style="color:var(--evo-navy);font-weight:700">${fmtInt(pa)}</td>
+                  <td class="${i.mA > 0 ? (ta >= 100 ? 'val-green' : 'val-red') : ''}">${i.mA > 0 ? fmtPct(ta) : '-'}</td>
+                  <td class="${i.mA > 0 ? 'val-red' : ''}">-</td>
+                  <td class="block-gap"></td>
+                  <td class="${hasV ? getEficClass(e) : ''}">${hasV ? fmtPct(e) : '-'}</td>
             </tr>`;
         });
-        h += `</tbody></table>`;
+        h += `</tbody></table></div>`;
         document.getElementById('p4-sellers-table').innerHTML = h;
     }
 
