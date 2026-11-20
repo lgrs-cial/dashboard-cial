@@ -407,48 +407,102 @@
         }
         .step-box strong { color: var(--evo-navy); font-weight: 600; }
 
-        /* CARDS DO PÓDIO RK AGENTES (CONTRASTE LIMPO E ELEGANTE) */
-        .podium-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 0.8rem; }
+        /* CARDS DO PÓDIO DE DESTAQUES (COMPACTOS E ASPIRACIONAIS) */
+        .podium-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
         .podium-card {
-            background: #FFFFFF;
-            border: 1px solid var(--border-col);
-            border-left: 4px solid var(--evo-blue);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #071D49 0%, #0D327A 100%);
+            border: 1.5px solid #3B82F6;
             border-radius: 7px;
-            padding: 0.8rem 0.95rem;
+            padding: 0.44rem 0.68rem;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.06);
-        }
-        .rank-medal {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%);
+            justify-content: space-between;
+            gap: 8px;
+            box-shadow: 0 3px 9px rgba(0, 27, 94, 0.16);
             color: #FFFFFF;
+        }
+        .podium-card.gold {
+            background: linear-gradient(135deg, #00164D 0%, #002F96 60%, #0044CC 100%);
+            border: 1.5px solid #F59E0B;
+            box-shadow: 0 3px 12px rgba(245, 158, 11, 0.26), 0 2px 6px rgba(0, 22, 77, 0.22);
+        }
+        .podium-card.silver {
+            background: linear-gradient(135deg, #0B2252 0%, #163B85 100%);
+            border: 1.5px solid #CBD5E1;
+        }
+        .podium-card.bronze {
+            background: linear-gradient(135deg, #10244E 0%, #1C3E82 100%);
+            border: 1.5px solid #D97706;
+        }
+        .podium-watermark {
+            position: absolute;
+            right: 52px;
+            bottom: -6px;
+            font-size: 2.3rem;
+            color: rgba(255, 255, 255, 0.06);
+            pointer-events: none;
+        }
+        .podium-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; z-index: 1; }
+        .rank-medal {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FDE047 0%, #F59E0B 55%, #D97706 100%);
+            color: #0F172A;
             font-family: var(--font-hdr);
-            font-weight: 700;
-            font-size: 1rem;
+            font-weight: 800;
+            font-size: 0.82rem;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.25);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.28);
         }
-        .rank-medal.silver { background: linear-gradient(135deg, #64748B 0%, #94A3B8 100%); box-shadow: 0 2px 4px rgba(100, 116, 139, 0.25); }
-        .rank-medal.bronze { background: linear-gradient(135deg, #9A3412 0%, #C2410C 100%); box-shadow: 0 2px 4px rgba(154, 52, 18, 0.25); }
-        .podium-name { font-family: var(--font-hdr); font-weight: 700; font-size: 0.92rem; color: var(--evo-navy); }
-        .podium-area { font-size: 0.72rem; font-weight: 500; color: var(--text-muted); }
-        .podium-stats { font-size: 0.76rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; font-variant-numeric: tabular-nums; }
-        .podium-stats b { color: var(--evo-blue); font-weight: 700; }
-        .prize-tag { background: #DCFCE7; color: #166534; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 0.71rem; margin-top: 4px; display: inline-block; }
+        .rank-medal.silver { background: linear-gradient(135deg, #F8FAFC 0%, #CBD5E1 60%, #94A3B8 100%); color: #0F172A; }
+        .rank-medal.bronze { background: linear-gradient(135deg, #FDBA74 0%, #EA580C 65%, #9A3412 100%); color: #FFFFFF; }
+        .podium-info { min-width: 0; flex: 1; }
+        .podium-name-row { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .podium-name { font-family: var(--font-hdr); font-weight: 700; font-size: 0.83rem; color: #FFFFFF; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; }
+        .podium-area {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: #7DD3FC;
+            background: rgba(125, 211, 252, 0.14);
+            border: 1px solid rgba(125, 211, 252, 0.28);
+            padding: 0px 5px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .podium-stats { font-size: 0.69rem; color: rgba(241, 245, 249, 0.85); font-weight: 500; margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .podium-stats b { color: #FDE047; font-weight: 700; }
+        .podium-stats b.alt-val { color: #38BDF8; }
+        .prize-box {
+            z-index: 1;
+            flex-shrink: 0;
+            text-align: right;
+            background: rgba(255, 255, 255, 0.11);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            padding: 3px 7px;
+            border-radius: 5px;
+            line-height: 1.15;
+        }
+        .podium-card.gold .prize-box {
+            background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+            border-color: #FDE68A;
+            color: #0F172A;
+            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.35);
+        }
+        .prize-lbl { font-size: 0.53rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.85; display: block; }
+        .prize-val { font-family: var(--font-hdr); font-size: 0.74rem; font-weight: 800; font-variant-numeric: tabular-nums; display: block; }
 
         .sim-summary-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-top: 10px; }
         .sim-metric-card { background: #FFFFFF; border: 1px solid var(--border-col); border-radius: 5px; padding: 10px; }
 
-        @media (max-width: 960px) { .grid-2 { grid-template-columns: 1fr; } header { padding: 0.5rem; } main { padding: 0.5rem; } }
+        @media (max-width: 960px) { .grid-2 { grid-template-columns: 1fr; } .podium-grid { grid-template-columns: 1fr; } header { padding: 0.5rem; } main { padding: 0.5rem; } }
     
-        /* TABELA UNIDADES COMPACTA, CABEÇALHO CONGELADO E DIVISÃO VENDAS x ALTAS */
+        /* TABELA UNIDADES & CANAIS COMPACTA, CABEÇALHO CONGELADO E DIVISÃO VENDAS x ALTAS */
         .units-scroll-wrap {
             width: 100%;
             max-height: 620px;
@@ -458,13 +512,13 @@
             background: var(--bg-surface);
         }
         table.tbl-unidades {
-            font-size: 0.70rem;
+            font-size: 0.67rem;
             border-collapse: separate;
             border-spacing: 0;
         }
         table.tbl-unidades th,
         table.tbl-unidades td {
-            padding: 0.28rem 0.36rem;
+            padding: 0.24rem 0.22rem;
             border-bottom: 1px solid var(--border-col);
             border-right: 1px solid var(--border-col);
         }
@@ -472,21 +526,53 @@
             position: sticky;
             top: 0;
             z-index: 12;
-            height: 26px;
+            height: 24px;
         }
         table.tbl-unidades thead tr:nth-child(2) th {
             position: sticky;
-            top: 26px;
+            top: 24px;
             z-index: 11;
             box-shadow: 0 2px 3px rgba(15, 23, 42, 0.08);
+            line-height: 1.08;
+            font-size: 0.62rem;
+            padding: 0.20rem 0.16rem;
         }
         table.tbl-unidades th.sticky-col,
         table.tbl-unidades td.sticky-col {
             position: sticky;
             left: 0;
             z-index: 6;
-            min-width: 125px;
-            max-width: 155px;
+            min-width: 96px;
+            max-width: 116px;
+            padding-left: 0.36rem;
+            padding-right: 0.30rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        table.tbl-unidades th.th-hist-mes {
+            font-size: 0.58rem !important;
+            padding: 0.20rem 0.12rem !important;
+            min-width: 26px;
+        }
+        table.tbl-unidades td.hist-col {
+            font-size: 0.60rem !important;
+            padding: 0.22rem 0.12rem !important;
+            opacity: 0.72;
+        }
+        table.tbl-unidades th.col-kpi-std,
+        table.tbl-unidades td.col-kpi-std {
+            min-width: 36px;
+            max-width: 42px;
+            width: 39px;
+            padding-left: 0.14rem !important;
+            padding-right: 0.14rem !important;
+        }
+        table.tbl-unidades th.col-kpi-pct,
+        table.tbl-unidades td.col-kpi-pct {
+            min-width: 42px;
+            max-width: 48px;
+            padding-left: 0.14rem !important;
+            padding-right: 0.14rem !important;
         }
         table.tbl-unidades thead th.sticky-col {
             z-index: 15;
@@ -1871,20 +1957,20 @@
         // Cabeçalhos VENDAS
         if (showHistUnidades) {
             for (let idx = 0; idx < m1Index; idx++) {
-                h += `<th class="th-vendas-sub">${meses[idx]}</th>`;
+                h += `<th class="th-vendas-sub th-hist-mes">${meses[idx]}</th>`;
             }
         }
-        h += `<th class="th-vendas-sub">${mesM1Nome}</th>`;
-        h += `<th class="th-vendas-sub">Meta ${mesAtualNome}</th><th class="th-vendas-sub">FC ${mesM1Nome}</th><th class="th-vendas-sub">Real</th><th class="th-vendas-sub">Proj.</th><th class="th-vendas-sub">% Proj.</th><th class="th-vendas-sub">M-1</th>`;
+        h += `<th class="th-vendas-sub th-hist-mes">${mesM1Nome}</th>`;
+        h += `<th class="th-vendas-sub col-kpi-std">Meta<br>${mesAtualNome}</th><th class="th-vendas-sub col-kpi-std">FC<br>${mesAtualNome}</th><th class="th-vendas-sub col-kpi-std">Real</th><th class="th-vendas-sub col-kpi-std">Proj.</th><th class="th-vendas-sub col-kpi-pct">% Proj.</th><th class="th-vendas-sub col-kpi-pct">M-1</th>`;
 
         // Cabeçalhos ALTAS
         if (showHistUnidades) {
             for (let idx = 0; idx < m1Index; idx++) {
-                h += `<th class="th-altas-sub">${meses[idx]}</th>`;
+                h += `<th class="th-altas-sub th-hist-mes">${meses[idx]}</th>`;
             }
         }
-        h += `<th class="th-altas-sub">${mesM1Nome}</th>`;
-        h += `<th class="th-altas-sub">Meta ${mesAtualNome}</th><th class="th-altas-sub">FC ${mesM1Nome}</th><th class="th-altas-sub">Real</th><th class="th-altas-sub">Proj.</th><th class="th-altas-sub">% Proj.</th><th class="th-altas-sub">M-1</th>`;
+        h += `<th class="th-altas-sub th-hist-mes">${mesM1Nome}</th>`;
+        h += `<th class="th-altas-sub col-kpi-std">Meta<br>${mesAtualNome}</th><th class="th-altas-sub col-kpi-std">FC<br>${mesAtualNome}</th><th class="th-altas-sub col-kpi-std">Real</th><th class="th-altas-sub col-kpi-std">Proj.</th><th class="th-altas-sub col-kpi-pct">% Proj.</th><th class="th-altas-sub col-kpi-pct">M-1</th>`;
 
         h += `</tr></thead><tbody>`;
 
@@ -1936,33 +2022,33 @@
 
             // Linha Consolidada da Unidade
             h += `<tr class="row-total row-unit-hdr">
-                <td class="left sticky-col"><b>${unitLabel}</b></td>
+                <td class="left sticky-col" title="${unitLabel}"><b>${unitLabel}</b></td>
                 <td class="block-gap"></td>`;
 
             for (let idx = 0; idx <= m1Index; idx++) {
                 if (!showHistUnidades && idx < m1Index) continue;
                 h += `<td class="hist-col">${fmtInt(g.V_Hist[idx])}</td>`;
             }
-            h += `<td>${g.V_Meta > 0 ? fmtInt(g.V_Meta) : '-'}</td>
-                  <td>${g.V_FC > 0 ? fmtInt(g.V_FC) : '-'}</td>
-                  <td><b>${fmtInt(curU.v)}</b></td>
-                  <td style="color:var(--evo-navy);font-weight:700">${fmtInt(vProj)}</td>
-                  <td class="${vRef > 0 ? (vPct >= 100 ? 'val-green' : 'val-red') : ''}">${vRef > 0 ? fmtPct(vPct) : '-'}</td>
-                  <td class="${vOut > 0 ? (vM1 >= 0 ? 'val-green' : 'val-red') : ''}">${vOut > 0 ? (vM1 >= 0 ? '+' : '') + fmtPct(vM1) : '-'}</td>
+            h += `<td class="col-kpi-std">${g.V_Meta > 0 ? fmtInt(g.V_Meta) : '-'}</td>
+                  <td class="col-kpi-std">${g.V_FC > 0 ? fmtInt(g.V_FC) : '-'}</td>
+                  <td class="col-kpi-std"><b>${fmtInt(curU.v)}</b></td>
+                  <td class="col-kpi-std" style="color:var(--evo-navy);font-weight:700">${fmtInt(vProj)}</td>
+                  <td class="col-kpi-pct ${vRef > 0 ? (vPct >= 100 ? 'val-green' : 'val-red') : ''}">${vRef > 0 ? fmtPct(vPct) : '-'}</td>
+                  <td class="col-kpi-pct ${vOut > 0 ? (vM1 >= 0 ? 'val-green' : 'val-red') : ''}">${vOut > 0 ? (vM1 >= 0 ? '+' : '') + fmtPct(vM1) : '-'}</td>
                   <td class="block-gap"></td>`;
 
             for (let idx = 0; idx <= m1Index; idx++) {
                 if (!showHistUnidades && idx < m1Index) continue;
                 h += `<td class="hist-col">${fmtInt(g.A_Hist[idx])}</td>`;
             }
-            h += `<td>${g.A_Meta > 0 ? fmtInt(g.A_Meta) : '-'}</td>
-                  <td>${g.A_FC > 0 ? fmtInt(g.A_FC) : '-'}</td>
-                  <td><b>${fmtInt(curU.a)}</b></td>
-                  <td style="color:var(--evo-navy);font-weight:700">${fmtInt(aProj)}</td>
-                  <td class="${aRef > 0 ? (aPct >= 100 ? 'val-green' : 'val-red') : ''}">${aRef > 0 ? fmtPct(aPct) : '-'}</td>
-                  <td class="${aOut > 0 ? (aM1 >= 0 ? 'val-green' : 'val-red') : ''}">${aOut > 0 ? (aM1 >= 0 ? '+' : '') + fmtPct(aM1) : '-'}</td>
+            h += `<td class="col-kpi-std">${g.A_Meta > 0 ? fmtInt(g.A_Meta) : '-'}</td>
+                  <td class="col-kpi-std">${g.A_FC > 0 ? fmtInt(g.A_FC) : '-'}</td>
+                  <td class="col-kpi-std"><b>${fmtInt(curU.a)}</b></td>
+                  <td class="col-kpi-std" style="color:var(--evo-navy);font-weight:700">${fmtInt(aProj)}</td>
+                  <td class="col-kpi-pct ${aRef > 0 ? (aPct >= 100 ? 'val-green' : 'val-red') : ''}">${aRef > 0 ? fmtPct(aPct) : '-'}</td>
+                  <td class="col-kpi-pct ${aOut > 0 ? (aM1 >= 0 ? 'val-green' : 'val-red') : ''}">${aOut > 0 ? (aM1 >= 0 ? '+' : '') + fmtPct(aM1) : '-'}</td>
                   <td class="block-gap"></td>
-                  <td class="${curU.v > 0 ? getEficClass(ef) : ''}">${curU.v > 0 ? fmtPct(ef) : '-'}</td>
+                  <td class="col-kpi-pct ${curU.v > 0 ? getEficClass(ef) : ''}">${curU.v > 0 ? fmtPct(ef) : '-'}</td>
             </tr>`;
 
             // Linhas dos Canais dentro da Unidade
@@ -1991,33 +2077,33 @@
                 const rowCls = '';
 
                 h += `<tr class="${rowCls}">
-                    <td class="left sticky-col">${showName}</td>
+                    <td class="left sticky-col" title="${showName}">${showName}</td>
                     <td class="block-gap"></td>`;
 
                 for (let idx = 0; idx <= m1Index; idx++) {
                     if (!showHistUnidades && idx < m1Index) continue;
                     h += `<td class="hist-col">${fmtInt(chHist.V_Hist[idx])}</td>`;
                 }
-                h += `<td>${chHist.V_Meta > 0 ? fmtInt(chHist.V_Meta) : '-'}</td>
-                      <td>${chHist.V_FC > 0 ? fmtInt(chHist.V_FC) : '-'}</td>
-                      <td>${fmtInt(curCh.v)}</td>
-                      <td style="color:var(--evo-blue);font-weight:700">${fmtInt(cvProj)}</td>
-                      <td class="${cvRef > 0 ? (cvPct >= 100 ? 'val-green' : 'val-red') : ''}">${cvRef > 0 ? fmtPct(cvPct) : '-'}</td>
-                      <td class="${cvOut > 0 ? (cvM1 >= 0 ? 'val-green' : 'val-red') : ''}">${cvOut > 0 ? (cvM1 >= 0 ? '+' : '') + fmtPct(cvM1) : '-'}</td>
+                h += `<td class="col-kpi-std">${chHist.V_Meta > 0 ? fmtInt(chHist.V_Meta) : '-'}</td>
+                      <td class="col-kpi-std">${chHist.V_FC > 0 ? fmtInt(chHist.V_FC) : '-'}</td>
+                      <td class="col-kpi-std">${fmtInt(curCh.v)}</td>
+                      <td class="col-kpi-std" style="color:var(--evo-blue);font-weight:700">${fmtInt(cvProj)}</td>
+                      <td class="col-kpi-pct ${cvRef > 0 ? (cvPct >= 100 ? 'val-green' : 'val-red') : ''}">${cvRef > 0 ? fmtPct(cvPct) : '-'}</td>
+                      <td class="col-kpi-pct ${cvOut > 0 ? (cvM1 >= 0 ? 'val-green' : 'val-red') : ''}">${cvOut > 0 ? (cvM1 >= 0 ? '+' : '') + fmtPct(cvM1) : '-'}</td>
                       <td class="block-gap"></td>`;
 
                 for (let idx = 0; idx <= m1Index; idx++) {
                     if (!showHistUnidades && idx < m1Index) continue;
                     h += `<td class="hist-col">${fmtInt(chHist.A_Hist[idx])}</td>`;
                 }
-                h += `<td>${chHist.A_Meta > 0 ? fmtInt(chHist.A_Meta) : '-'}</td>
-                      <td>${chHist.A_FC > 0 ? fmtInt(chHist.A_FC) : '-'}</td>
-                      <td><b>${fmtInt(curCh.a)}</b></td>
-                      <td style="color:var(--evo-blue);font-weight:700">${fmtInt(caProj)}</td>
-                      <td class="${caRef > 0 ? (caPct >= 100 ? 'val-green' : 'val-red') : ''}">${caRef > 0 ? fmtPct(caPct) : '-'}</td>
-                      <td class="${caOut > 0 ? (caM1 >= 0 ? 'val-green' : 'val-red') : ''}">${caOut > 0 ? (caM1 >= 0 ? '+' : '') + fmtPct(caM1) : '-'}</td>
+                h += `<td class="col-kpi-std">${chHist.A_Meta > 0 ? fmtInt(chHist.A_Meta) : '-'}</td>
+                      <td class="col-kpi-std">${chHist.A_FC > 0 ? fmtInt(chHist.A_FC) : '-'}</td>
+                      <td class="col-kpi-std"><b>${fmtInt(curCh.a)}</b></td>
+                      <td class="col-kpi-std" style="color:var(--evo-blue);font-weight:700">${fmtInt(caProj)}</td>
+                      <td class="col-kpi-pct ${caRef > 0 ? (caPct >= 100 ? 'val-green' : 'val-red') : ''}">${caRef > 0 ? fmtPct(caPct) : '-'}</td>
+                      <td class="col-kpi-pct ${caOut > 0 ? (caM1 >= 0 ? 'val-green' : 'val-red') : ''}">${caOut > 0 ? (caM1 >= 0 ? '+' : '') + fmtPct(caM1) : '-'}</td>
                       <td class="block-gap"></td>
-                      <td class="${curCh.v > 0 ? getEficClass(cef) : ''}">${curCh.v > 0 ? fmtPct(cef) : '-'}</td>
+                      <td class="col-kpi-pct ${curCh.v > 0 ? getEficClass(cef) : ''}">${curCh.v > 0 ? fmtPct(cef) : '-'}</td>
                 </tr>`;
             });
         });
@@ -2231,11 +2317,11 @@
                 const val = vHistArr[idx];
                 tr += `<td class="hist-col">${val !== null && val !== undefined ? fmtInt(val) : ''}</td>`;
             }
-            tr += `<td>${mV > 0 ? fmtInt(mV) : '-'}</td>
-                   <td><b>${fmtInt(realV)}</b></td>
-                   <td style="color:var(--evo-navy);font-weight:700">${fmtInt(pv)}</td>
-                   <td class="${mV > 0 ? (pctV >= 100 ? 'val-green' : 'val-red') : ''}">${mV > 0 ? fmtPct(pctV) : '-'}</td>
-                   <td class="${m1VCls}">${m1VStr}</td>
+            tr += `<td class="col-kpi-std">${mV > 0 ? fmtInt(mV) : '-'}</td>
+                   <td class="col-kpi-std"><b>${fmtInt(realV)}</b></td>
+                   <td class="col-kpi-std" style="color:var(--evo-navy);font-weight:700">${fmtInt(pv)}</td>
+                   <td class="col-kpi-pct ${mV > 0 ? (pctV >= 100 ? 'val-green' : 'val-red') : ''}">${mV > 0 ? fmtPct(pctV) : '-'}</td>
+                   <td class="col-kpi-pct ${m1VCls}">${m1VStr}</td>
                    <td class="block-gap"></td>`;
 
             // ALTAS
@@ -2244,40 +2330,40 @@
                 const val = aHistArr[idx];
                 tr += `<td class="hist-col">${val !== null && val !== undefined ? fmtInt(val) : ''}</td>`;
             }
-            tr += `<td>${mA > 0 ? fmtInt(mA) : '-'}</td>
-                   <td><b>${fmtInt(realA)}</b></td>
-                   <td style="color:var(--evo-navy);font-weight:700">${fmtInt(pa)}</td>
-                   <td class="${mA > 0 ? (pctA >= 100 ? 'val-green' : 'val-red') : ''}">${mA > 0 ? fmtPct(pctA) : '-'}</td>
-                   <td class="${m1ACls}">${m1AStr}</td>
+            tr += `<td class="col-kpi-std">${mA > 0 ? fmtInt(mA) : '-'}</td>
+                   <td class="col-kpi-std"><b>${fmtInt(realA)}</b></td>
+                   <td class="col-kpi-std" style="color:var(--evo-navy);font-weight:700">${fmtInt(pa)}</td>
+                   <td class="col-kpi-pct ${mA > 0 ? (pctA >= 100 ? 'val-green' : 'val-red') : ''}">${mA > 0 ? fmtPct(pctA) : '-'}</td>
+                   <td class="col-kpi-pct ${m1ACls}">${m1AStr}</td>
                    <td class="block-gap"></td>
-                   <td class="${hasProd ? getEficClass(ef) : ''}">${hasProd ? fmtPct(ef) : '-'}</td>
+                   <td class="col-kpi-pct ${hasProd ? getEficClass(ef) : ''}">${hasProd ? fmtPct(ef) : '-'}</td>
             </tr>`;
             return tr;
         }
 
         let h = `<div class="units-scroll-wrap"><table class="tbl-unidades"><thead>
             <tr>
-                <th rowspan="2" class="left sticky-col" style="min-width:165px;">${colTitle}</th>
+                <th rowspan="2" class="left sticky-col">${colTitle}</th>
                 <th class="block-gap" rowspan="2"></th>
                 <th colspan="${blockSpan}" class="th-vendas-grp">VENDAS</th>
                 <th class="block-gap" rowspan="2"></th>
                 <th colspan="${blockSpan}" class="th-altas-grp">ALTAS</th>
                 <th class="block-gap" rowspan="2"></th>
-                <th rowspan="2" style="background:#DCE7F5;">Eficiência</th>
+                <th rowspan="2" style="background:#DCE7F5;">Efic.</th>
             </tr>
             <tr>`;
 
         if (showHistCanais) {
-            for (let idx = 0; idx < m1Index; idx++) h += `<th class="th-vendas-sub">${meses[idx]}</th>`;
+            for (let idx = 0; idx < m1Index; idx++) h += `<th class="th-vendas-sub th-hist-mes">${meses[idx]}</th>`;
         }
-        h += `<th class="th-vendas-sub">${mesM1Nome}</th>`;
-        h += `<th class="th-vendas-sub">Meta ${mesAtualNome}</th><th class="th-vendas-sub">Real</th><th class="th-vendas-sub">Projeção</th><th class="th-vendas-sub">% Atng. Proj.</th><th class="th-vendas-sub">M-1</th>`;
+        h += `<th class="th-vendas-sub th-hist-mes">${mesM1Nome}</th>`;
+        h += `<th class="th-vendas-sub col-kpi-std">Meta<br>${mesAtualNome}</th><th class="th-vendas-sub col-kpi-std">Real</th><th class="th-vendas-sub col-kpi-std">Proj.</th><th class="th-vendas-sub col-kpi-pct">% Proj.</th><th class="th-vendas-sub col-kpi-pct">M-1</th>`;
 
         if (showHistCanais) {
-            for (let idx = 0; idx < m1Index; idx++) h += `<th class="th-altas-sub">${meses[idx]}</th>`;
+            for (let idx = 0; idx < m1Index; idx++) h += `<th class="th-altas-sub th-hist-mes">${meses[idx]}</th>`;
         }
-        h += `<th class="th-altas-sub">${mesM1Nome}</th>`;
-        h += `<th class="th-altas-sub">Meta ${mesAtualNome}</th><th class="th-altas-sub">Real</th><th class="th-altas-sub">Projeção</th><th class="th-altas-sub">% Atng. Proj.</th><th class="th-altas-sub">M-1</th>`;
+        h += `<th class="th-altas-sub th-hist-mes">${mesM1Nome}</th>`;
+        h += `<th class="th-altas-sub col-kpi-std">Meta<br>${mesAtualNome}</th><th class="th-altas-sub col-kpi-std">Real</th><th class="th-altas-sub col-kpi-std">Proj.</th><th class="th-altas-sub col-kpi-pct">% Proj.</th><th class="th-altas-sub col-kpi-pct">M-1</th>`;
         h += `</tr></thead><tbody>`;
 
         // Top Consolidated Row (Geral do Canal)
@@ -2640,14 +2726,27 @@
         const { agentsRk, aptosPodium, bkoRk, leadersRk } = computeRankings();
 
         // 1. Pódio & RK Agentes (Aba 6)
-        const medalClasses = ['', 'silver', 'bronze'];
+        const tierClasses = ['gold', 'silver', 'bronze'];
         let pOd = '';
         aptosPodium.forEach((ag, idx) => {
-            pOd += `<div class="podium-card"><div class="rank-medal ${medalClasses[idx] || ''}">${idx + 1}º</div><div>
-                <div class="podium-name">${ag.apelido} <span class="podium-area">(${ag.area})</span></div>
-                <div class="podium-stats">Eficiência: <b>${fmtPct(ag.eficGlobal)}</b> &bull; Altas: <b>${fmtPct(ag.pAltas)}</b></div>
-                <div class="prize-tag"><i class="fa-solid fa-money-bill-wave"></i> Prêmio: ${ag.premio}</div>
-            </div></div>`;
+            const tier = tierClasses[idx] || 'silver';
+            pOd += `<div class="podium-card ${tier}">
+                <i class="fa-solid fa-trophy podium-watermark"></i>
+                <div class="podium-left">
+                    <div class="rank-medal ${tier}">${idx + 1}º</div>
+                    <div class="podium-info">
+                        <div class="podium-name-row">
+                            <span class="podium-name" title="${ag.nome}">${ag.apelido}</span>
+                            <span class="podium-area">${ag.area}</span>
+                        </div>
+                        <div class="podium-stats">Efic: <b>${fmtPct(ag.eficGlobal)}</b> &bull; Altas: <b class="alt-val">${fmtPct(ag.pAltas)}</b></div>
+                    </div>
+                </div>
+                <div class="prize-box">
+                    <span class="prize-lbl">${idx === 0 ? '<i class="fa-solid fa-crown"></i> 1º Lugar' : 'Prêmio'}</span>
+                    <span class="prize-val">${ag.premio}</span>
+                </div>
+            </div>`;
         });
         document.getElementById('p6-podium').innerHTML = pOd || '<p style="color:var(--text-muted);font-weight:500;font-size:0.8rem;padding:0 10px;">Nenhum agente atingiu simultaneamente os Gatilhos 1 (Eficiência &ge; 80%) e 2 (Altas &ge; 100%) até o momento.</p>';
 
@@ -2678,11 +2777,24 @@
         const ldWinners = leadersRk.filter(l => l.premio !== '-');
         let pLd = '';
         ldWinners.forEach((ld, idx) => {
-            pLd += `<div class="podium-card"><div class="rank-medal ${medalClasses[idx] || ''}">${idx + 1}º</div><div>
-                <div class="podium-name">${ld.nome} <span class="podium-area">(${ld.area})</span></div>
-                <div class="podium-stats">Eficiência: <b>${fmtPct(ld.eficGlobal)}</b> &bull; Altas: <b>${fmtPct(ld.pAltas)}</b></div>
-                <div class="prize-tag"><i class="fa-solid fa-crown"></i> Prêmio: ${ld.premio}</div>
-            </div></div>`;
+            const tier = tierClasses[idx] || 'gold';
+            pLd += `<div class="podium-card ${tier}">
+                <i class="fa-solid fa-crown podium-watermark"></i>
+                <div class="podium-left">
+                    <div class="rank-medal ${tier}">${idx + 1}º</div>
+                    <div class="podium-info">
+                        <div class="podium-name-row">
+                            <span class="podium-name" title="${ld.nome}">${ld.nome}</span>
+                            <span class="podium-area">${ld.area}</span>
+                        </div>
+                        <div class="podium-stats">Efic: <b>${fmtPct(ld.eficGlobal)}</b> &bull; Altas: <b class="alt-val">${fmtPct(ld.pAltas)}</b></div>
+                    </div>
+                </div>
+                <div class="prize-box">
+                    <span class="prize-lbl"><i class="fa-solid fa-crown"></i> Líder #1</span>
+                    <span class="prize-val">${ld.premio}</span>
+                </div>
+            </div>`;
         });
         document.getElementById('p7-podium').innerHTML = pLd || '<p style="color:var(--text-muted);font-weight:500;font-size:0.8rem;padding:0 10px;">Nenhum líder projetando atingir simultaneamente os Gatilhos 1 (Eficiência &ge; 80%) e 2 (Altas &ge; 100%) até o momento.</p>';
 
