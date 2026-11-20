@@ -2319,6 +2319,23 @@
                 aHist: Array.isArray(hRec.aHist) ? hRec.aHist : Array(totalMeses).fill(null)
             };
         });
+        if (!pM['N IDENTIFICADO']) {
+            const hRecNId = byKeyHist['N IDENTIFICADO'] || {};
+            pM['N IDENTIFICADO'] = {
+                key: 'N IDENTIFICADO',
+                nome: 'Ñ Identificado',
+                apelido: 'Ñ Identificado',
+                un: '-',
+                ch: 'AA',
+                ar: 'Parceiro AA',
+                mV: 0,
+                mA: 0,
+                v: 0,
+                a: 0,
+                vHist: Array.isArray(hRecNId.vHist) ? hRecNId.vHist : Array(totalMeses).fill(null),
+                aHist: Array.isArray(hRecNId.aHist) ? hRecNId.aHist : Array(totalMeses).fill(null)
+            };
+        }
 
         // Aggregate current month realized from BD Geral
         blReg.forEach(r => {
@@ -2326,14 +2343,25 @@
             let rawKey = '';
             if (ch === 'AA') {
                 const rawRS = (r[5] || '').toUpperCase().trim();
-                rawKey = (STATE.config.aaMap && STATE.config.aaMap[rawRS]) ? STATE.config.aaMap[rawRS] : rawRS;
+                const normRS = normName(rawRS);
+                if (!rawRS || normRS === 'NAO IDENTIFICADO' || normRS === 'N IDENTIFICADO') {
+                    rawKey = 'Ñ Identificado';
+                } else {
+                    let mapped = STATE.config.aaMap && STATE.config.aaMap[rawRS];
+                    if (!mapped && STATE.config.aaMap) {
+                        const foundKey = Object.keys(STATE.config.aaMap).find(ak => normName(ak) === normRS);
+                        if (foundKey) mapped = STATE.config.aaMap[foundKey];
+                    }
+                    rawKey = mapped || rawRS;
+                }
             } else if (ch === 'Digital') {
                 rawKey = (r[5] || 'FORNECEDOR DIGITAL').toUpperCase().trim();
             } else {
                 rawKey = r[4] || '';
             }
             const k = normName(rawKey);
-            if (!k || k === 'NAO IDENTIFICADO' || k === 'N IDENTIFICADO') return;
+            if (!k) return;
+            if (ch !== 'AA' && (k === 'NAO IDENTIFICADO' || k === 'N IDENTIFICADO')) return;
             if (!pM[k]) {
                 // Check if they exist in STATE.agents as Inativo
                 const isInactive = STATE.agents.some(a => normName(a[0]) === k && a[7] === 'Inativo');
@@ -2535,14 +2563,8 @@
         } else {
             // Flat ordered list (AA, Inside Sales, Digital, or RJ)
             let filtered = channelItems.filter(i => !query || normName(i.nome).includes(query) || normName(i.apelido).includes(query) || normName(i.un).includes(query));
-            if (channelFilter === 'AA' && regSellerHist.order && regSellerHist.order.length > 0) {
-                const orderIdx = {};
-                regSellerHist.order.forEach((name, idx) => { orderIdx[normName(name)] = idx; });
-                filtered.sort((a, b) => {
-                    const ia = orderIdx[a.key] !== undefined ? orderIdx[a.key] : 999;
-                    const ib = orderIdx[b.key] !== undefined ? orderIdx[b.key] : 999;
-                    return (ia - ib) || (b.a - a.a);
-                });
+            if (channelFilter === 'AA') {
+                filtered.sort((a, b) => (b.v - a.v) || (b.a - a.a) || (b.mV - a.mV) || a.nome.localeCompare(b.nome));
             } else {
                 filtered.sort((a, b) => (b.a - a.a) || (b.mA - a.mA));
             }
@@ -3698,7 +3720,17 @@
                 let rawKey = '';
                 if (ch === 'AA') {
                     const rawRS = (r[5] || '').toUpperCase().trim();
-                    rawKey = (STATE.config.aaMap && STATE.config.aaMap[rawRS]) ? STATE.config.aaMap[rawRS] : rawRS;
+                    const normRS = normName(rawRS);
+                    if (!rawRS || normRS === 'NAO IDENTIFICADO' || normRS === 'N IDENTIFICADO') {
+                        rawKey = 'Ñ Identificado';
+                    } else {
+                        let mapped = STATE.config.aaMap && STATE.config.aaMap[rawRS];
+                        if (!mapped && STATE.config.aaMap) {
+                            const foundKey = Object.keys(STATE.config.aaMap).find(ak => normName(ak) === normRS);
+                            if (foundKey) mapped = STATE.config.aaMap[foundKey];
+                        }
+                        rawKey = mapped || rawRS;
+                    }
                 } else if (ch === 'Digital') {
                     rawKey = (r[5] || 'FORNECEDOR DIGITAL').toUpperCase().trim();
                 } else {
