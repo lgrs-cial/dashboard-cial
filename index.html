@@ -381,16 +381,17 @@
         .rules-strip {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 5px;
             background: #FFFFFF;
             border: 1px solid var(--border-col);
-            border-left: 4px solid var(--evo-coral);
-            padding: 8px 12px;
+            border-left: 3px solid var(--evo-coral);
+            padding: 5px 9px;
             border-radius: 5px;
-            font-size: 0.74rem;
+            font-size: 0.64rem;
+            line-height: 1.25;
             align-items: center;
         }
-        .rule-chip { background: #F1F5F9; border: 1px solid #E2E8F0; padding: 3px 8px; border-radius: 4px; color: var(--text-body); }
+        .rule-chip { background: #F1F5F9; border: 1px solid #E2E8F0; padding: 2px 6px; border-radius: 3px; color: var(--text-body); }
         .rule-chip b { color: var(--evo-blue); font-weight: 600; }
 
         .step-box {
@@ -530,14 +531,55 @@
             background: #E5F6FD !important;
             color: #0C4A6E !important;
         }
-        .block-gap {
-            width: 10px !important;
-            min-width: 10px !important;
-            max-width: 10px !important;
+        table.tbl-unidades th.block-gap,
+        table.tbl-unidades td.block-gap,
+        table.tbl-unidades tr.row-total td.block-gap,
+        table.tbl-unidades tr.row-unit-hdr td.block-gap,
+        table.tbl-unidades tr.row-sub-hdr td.block-gap,
+        table.tbl-unidades tbody tr:nth-child(even) td.block-gap,
+        table.tbl-unidades tbody tr:nth-child(odd) td.block-gap,
+        table.tbl-unidades tbody tr:hover td.block-gap {
+            width: 11px !important;
+            min-width: 11px !important;
+            max-width: 11px !important;
             padding: 0 !important;
-            background: var(--bg-page) !important;
+            background: #FFFFFF !important;
             border-top: none !important;
             border-bottom: none !important;
+            border-left: 1.5px solid #CBD5E1 !important;
+            border-right: 1.5px solid #CBD5E1 !important;
+        }
+
+        /* TABELA DIÁRIO COMPACTA PARA CABER NA TELA SEM ROLAGEM HORIZONTAL */
+        table.tbl-diario {
+            font-size: 0.69rem;
+            table-layout: auto;
+        }
+        table.tbl-diario th,
+        table.tbl-diario td {
+            padding: 0.30rem 0.18rem;
+        }
+        table.tbl-diario th.col-canal,
+        table.tbl-diario td.col-canal {
+            padding: 0.30rem 0.42rem;
+            min-width: 96px;
+        }
+        table.tbl-diario th.col-meta-dia,
+        table.tbl-diario td.col-meta-dia {
+            padding: 0.26rem 0.24rem;
+            min-width: 44px;
+            max-width: 52px;
+            line-height: 1.1;
+        }
+        table.tbl-diario th.col-day,
+        table.tbl-diario td.col-day {
+            min-width: 24px;
+            padding: 0.28rem 0.14rem;
+        }
+        table.tbl-diario th.col-total,
+        table.tbl-diario td.col-total {
+            padding: 0.30rem 0.34rem;
+            min-width: 42px;
         }
 
     </style>
@@ -1594,7 +1636,7 @@
                     },
                     {
                         type: 'line',
-                        label: 'Meta FC (Traço)',
+                        label: 'Forecast (Traço)',
                         data: metasHist,
                         isMetaTick: true,
                         showLine: false,
@@ -1618,7 +1660,7 @@
                             borderRadius: 3,
                             padding: { top: 1, bottom: 1, left: 3, right: 3 },
                             font: { family: 'Inter', size: 8.5, weight: '700' },
-                            formatter: (v, ctx) => (ctx.dataIndex === labelsHist.length - 1 ? 'Meta FC: ' : '') + v.toLocaleString('pt-BR')
+                            formatter: (v, ctx) => (ctx.dataIndex === labelsHist.length - 1 ? 'FC: ' : '') + v.toLocaleString('pt-BR')
                         }
                     }
                 ]
@@ -1680,12 +1722,12 @@
         const maxDay = du.maxDayNum || 17;
 
         function buildMatrix(dailyMap, metasMap) {
-            let h = `<table><thead><tr><th class="left">Canal</th><th class="grp-sep">Meta Dia</th>`;
+            let h = `<table class="tbl-diario"><thead><tr><th class="left col-canal">Canal</th><th class="grp-sep col-meta-dia">Meta<br>Dia</th>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 const dow = new Date(dtParts[0], dtParts[1] - 1, d).getDay();
-                h += `<th class="${dow === 0 ? 'hm-wknd-hdr grp-sep' : ''}">${d}<br><span style="font-size:0.58rem">${weekNames[dow]}</span></th>`;
+                h += `<th class="col-day ${dow === 0 ? 'hm-wknd-hdr grp-sep' : ''}">${d}<br><span style="font-size:0.54rem">${weekNames[dow]}</span></th>`;
             }
-            h += `<th>Total</th></tr></thead><tbody>`;
+            h += `<th class="col-total">Total</th></tr></thead><tbody>`;
             const rows = [
                 { name: 'REGIONAL ' + currentRegion, cls: 'row-total', list: channels },
                 { name: 'Presenciais', cls: 'row-sub', list: ['Lojas', 'PaP', 'AA'] },
@@ -1695,7 +1737,7 @@
             rows.forEach(item => {
                 const metaDia = item.list.reduce((s, c) => s + (metasMap[c] || 0), 0) / du.duTotal;
                 let rSum = 0;
-                h += `<tr class="${item.cls}"><td class="left"><b>${item.name}</b></td><td class="grp-sep">${metaDia.toFixed(1).replace('.', ',')}</td>`;
+                h += `<tr class="${item.cls}"><td class="left col-canal"><b>${item.name}</b></td><td class="grp-sep col-meta-dia">${metaDia.toFixed(1).replace('.', ',')}</td>`;
                 for (let d = 1; d <= daysInMonth; d++) {
                     const val = item.list.reduce((s, c) => s + dailyMap[c][d - 1], 0);
                     rSum += val;
@@ -1705,7 +1747,7 @@
                     // Meta de sábado é meio dia útil (0.5 * metaDia), segunda a sexta é metaDia cheia
                     const targetDay = isSunday ? 0 : (isSaturday ? metaDia * 0.5 : metaDia);
 
-                    let cls = isSunday ? 'grp-sep ' : '';
+                    let cls = 'col-day ' + (isSunday ? 'grp-sep ' : '');
                     if (d > maxDay) {
                         cls += isSunday ? 'hm-wknd' : 'hm-future';
                     } else if (isSunday) {
@@ -1716,7 +1758,7 @@
                     }
                     h += `<td class="${cls}">${val}</td>`;
                 }
-                h += `<td><b>${fmtInt(rSum)}</b></td></tr>`;
+                h += `<td class="col-total"><b>${fmtInt(rSum)}</b></td></tr>`;
             });
             h += `</tbody></table>`;
             return h;
