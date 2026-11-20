@@ -2958,18 +2958,18 @@
         Object.keys(aaMetas).forEach(fantasia => {
             const info = aaMetas[fantasia];
             if (info.reg !== currentRegion) return;
-            const safeKey = fantasia.replace(/\/g, '\\').replace(/'/g, "\'");
+            const encKey = encodeURIComponent(fantasia);
             const razSub = info.raz ? `<div style="font-size:0.63rem; color:var(--text-muted); font-weight:400; max-width:210px; overflow:hidden; text-overflow:ellipsis;" title="${info.raz}">${info.raz}</div>` : '';
             hAa += `<tr>
                 <td class="left"><b>${fantasia}</b>${razSub}</td>
                 <td class="grp-sep">${info.reg}</td>
-                <td><input type="number" min="0" value="${Number(info.mV) || 0}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta('${safeKey}', 'mV', this.value)"></td>
-                <td><input type="number" min="0" value="${Number(info.mA) || 0}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta('${safeKey}', 'mA', this.value)"></td>
-                <td><select style="width:80px; font-weight:600; border:1px solid #CBD5E1;" onchange="updateAaMeta('${safeKey}', 'status', this.value)">
+                <td><input type="number" min="0" value="${Number(info.mV) || 0}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mV', this.value)"></td>
+                <td><input type="number" min="0" value="${Number(info.mA) || 0}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mA', this.value)"></td>
+                <td><select style="width:80px; font-weight:600; border:1px solid #CBD5E1;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'status', this.value)">
                     <option value="Ativo" ${info.status === 'Ativo' ? 'selected' : ''}>Ativo</option>
                     <option value="Inativo" ${info.status === 'Inativo' ? 'selected' : ''}>Inativo</option>
                 </select></td>
-                <td><button class="btn danger" title="Excluir Parceiro AA" onclick="removeAaPartner('${safeKey}')"><i class="fa-solid fa-trash-can"></i></button></td>
+                <td><button class="btn danger" title="Excluir Parceiro AA" onclick="removeAaPartner(decodeURIComponent('${encKey}'))"><i class="fa-solid fa-trash-can"></i></button></td>
             </tr>`;
         });
         hAa += `</tbody></table>`;
@@ -3065,7 +3065,7 @@
         h += `<th class="grp-sep" style="border-left:2px solid var(--border-grp);">Total</th></tr></thead><tbody>`;
 
         list.forEach(it => {
-            const safeKey = it.key.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const encKey = encodeURIComponent(it.key);
             const rowsToBuild = [];
             if (metricMode === 'both' || metricMode === 'vHist') rowsToBuild.push({ field: 'vHist', label: 'Vendas', arr: it.vHist, color: 'var(--evo-blue)' });
             if (metricMode === 'both' || metricMode === 'aHist') rowsToBuild.push({ field: 'aHist', label: 'Altas', arr: it.aHist, color: 'var(--green)' });
@@ -3081,7 +3081,7 @@
                     const v = rb.arr[mIdx];
                     if (v !== null && v !== undefined && !isNaN(Number(v))) sum += Number(v);
                     const dispVal = (v !== null && v !== undefined) ? v : '';
-                    h += `<td style="padding:2px;"><input type="number" min="0" value="${dispVal}" placeholder="-" style="width:46px; padding:3px 2px; text-align:center; font-size:0.72rem; font-weight:600; background:#FFFBEB; border:1px solid #CBD5E1;" onchange="updateSellerHistVal('${ch}', '${safeKey}', '${rb.field}', ${mIdx}, this.value)"></td>`;
+                    h += `<td style="padding:2px;"><input type="number" min="0" value="${dispVal}" placeholder="-" style="width:46px; padding:3px 2px; text-align:center; font-size:0.72rem; font-weight:600; background:#FFFBEB; border:1px solid #CBD5E1;" onchange="updateSellerHistVal('${ch}', decodeURIComponent('${encKey}'), '${rb.field}', ${mIdx}, this.value)"></td>`;
                 }
                 h += `<td style="font-weight:700; border-left:2px solid var(--border-grp);">${fmtInt(sum)}</td></tr>`;
             });
