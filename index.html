@@ -415,7 +415,7 @@
             background: linear-gradient(135deg, #071D49 0%, #0D327A 100%);
             border: 1.5px solid #3B82F6;
             border-radius: 7px;
-            padding: 0.44rem 0.68rem;
+            padding: 0.52rem 0.75rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -444,16 +444,16 @@
             color: rgba(255, 255, 255, 0.06);
             pointer-events: none;
         }
-        .podium-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; z-index: 1; }
+        .podium-left { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; z-index: 1; }
         .rank-medal {
-            width: 30px;
-            height: 30px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: linear-gradient(135deg, #FDE047 0%, #F59E0B 55%, #D97706 100%);
             color: #0F172A;
             font-family: var(--font-hdr);
             font-weight: 800;
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -463,19 +463,19 @@
         .rank-medal.silver { background: linear-gradient(135deg, #F8FAFC 0%, #CBD5E1 60%, #94A3B8 100%); color: #0F172A; }
         .rank-medal.bronze { background: linear-gradient(135deg, #FDBA74 0%, #EA580C 65%, #9A3412 100%); color: #FFFFFF; }
         .podium-info { min-width: 0; flex: 1; }
-        .podium-name-row { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .podium-name { font-family: var(--font-hdr); font-weight: 700; font-size: 0.83rem; color: #FFFFFF; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; }
+        .podium-name-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .podium-name { font-family: var(--font-hdr); font-weight: 800; font-size: 0.96rem; color: #FFFFFF; letter-spacing: 0.005em; overflow: hidden; text-overflow: ellipsis; }
         .podium-area {
-            font-size: 0.62rem;
+            font-size: 0.65rem;
             font-weight: 600;
             color: #7DD3FC;
             background: rgba(125, 211, 252, 0.14);
             border: 1px solid rgba(125, 211, 252, 0.28);
-            padding: 0px 5px;
+            padding: 1px 6px;
             border-radius: 3px;
             flex-shrink: 0;
         }
-        .podium-stats { font-size: 0.69rem; color: rgba(241, 245, 249, 0.85); font-weight: 500; margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .podium-stats { font-size: 0.72rem; color: rgba(241, 245, 249, 0.88); font-weight: 500; margin-top: 3px; font-variant-numeric: tabular-nums; white-space: nowrap; }
         .podium-stats b { color: #FDE047; font-weight: 700; }
         .podium-stats b.alt-val { color: #38BDF8; }
         .prize-box {
@@ -1027,10 +1027,41 @@
                 </div>
 
                 <div class="card-box">
-                    <div class="box-header"><div class="box-title"><i class="fa-solid fa-handshake"></i> Metas dos Parceiros AA (Espelho Planilha)</div></div>
-                    <p style="font-size:0.73rem; color:var(--text-muted);">Edite as metas mensais de Vendas e Altas de cada parceiro AA.</p>
+                    <div class="box-header"><div class="box-title"><i class="fa-solid fa-handshake"></i> Parceiros AA (De-Para BI & Metas Mensais)</div></div>
+                    <p style="font-size:0.73rem; color:var(--text-muted);">Cadastre novos parceiros AA (Nome Fantasia + Razão Social exata da BD Geral) ou edite metas e status abaixo.</p>
+                    <div class="filter-bar">
+                        <input type="text" id="new-aa-fantasia" placeholder="Nome Fantasia (Exibição)" style="min-width:140px; flex:1;">
+                        <input type="text" id="new-aa-raz" placeholder="Razão Social Exata no BI" style="min-width:170px; flex:1.3;">
+                        <select id="new-aa-reg"><option value="SP">SP</option><option value="RJ">RJ</option></select>
+                        <input type="number" id="new-aa-mv" placeholder="Meta Vendas" min="0" style="width:82px;">
+                        <input type="number" id="new-aa-ma" placeholder="Meta Altas" min="0" style="width:78px;">
+                        <button class="btn" onclick="addAaManual()"><i class="fa-solid fa-plus"></i> Inserir AA</button>
+                    </div>
                     <div class="table-wrap" style="max-height:350px; overflow-y:auto;" id="p10-aa-crud"></div>
                 </div>
+            </div>
+
+            <div class="card-box">
+                <div class="box-header">
+                    <div class="box-title"><i class="fa-solid fa-clock-rotate-left"></i> Editor de Histórico Mensal (Vendas & Altas — Agentes & Parceiros AA)</div>
+                    <div class="filter-bar">
+                        <select id="hist-edit-channel" onchange="renderHistCrud()" style="font-weight:600;">
+                            <option value="PaP">PaP Próprio</option>
+                            <option value="AA">Parceiros AA</option>
+                            <option value="Lojas">Lojas</option>
+                            <option value="Inside Sales">Inside Sales</option>
+                            <option value="Digital">Digital</option>
+                        </select>
+                        <select id="hist-edit-metric" onchange="renderHistCrud()" style="font-weight:600;">
+                            <option value="both">Vendas & Altas</option>
+                            <option value="vHist">Somente Vendas</option>
+                            <option value="aHist">Somente Altas</option>
+                        </select>
+                        <input type="text" id="hist-edit-search" placeholder="Filtrar nome (ex: Ariana, Kayque, VTE...)" oninput="renderHistCrud()" style="min-width:210px;">
+                    </div>
+                </div>
+                <p style="font-size:0.73rem; color:var(--text-muted);">Insira ou corrija o realizado histórico mês a mês (deixe em branco se não atuava no mês). As alterações atualizam automaticamente a aba <b>Canais & Vendedores</b> e sincronizam na nuvem.</p>
+                <div class="table-wrap" style="max-height:380px; overflow:auto;" id="p10-hist-crud"></div>
             </div>
         </div>
 </section>
@@ -2725,18 +2756,27 @@
     function renderRankings() {
         const { agentsRk, aptosPodium, bkoRk, leadersRk } = computeRankings();
 
+        function formatFirstLastName(fullName) {
+            const parts = (fullName || '').trim().split(/\s+/).filter(Boolean);
+            if (parts.length === 0) return '';
+            const cap = w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+            if (parts.length === 1) return cap(parts[0]);
+            return cap(parts[0]) + ' ' + cap(parts[parts.length - 1]);
+        }
+
         // 1. Pódio & RK Agentes (Aba 6)
         const tierClasses = ['gold', 'silver', 'bronze'];
         let pOd = '';
         aptosPodium.forEach((ag, idx) => {
             const tier = tierClasses[idx] || 'silver';
+            const displayCompoundName = formatFirstLastName(ag.nome);
             pOd += `<div class="podium-card ${tier}">
                 <i class="fa-solid fa-trophy podium-watermark"></i>
                 <div class="podium-left">
                     <div class="rank-medal ${tier}">${idx + 1}º</div>
                     <div class="podium-info">
                         <div class="podium-name-row">
-                            <span class="podium-name" title="${ag.nome}">${ag.apelido}</span>
+                            <span class="podium-name" title="${ag.nome}">${displayCompoundName}</span>
                             <span class="podium-area">${ag.area}</span>
                         </div>
                         <div class="podium-stats">Efic: <b>${fmtPct(ag.eficGlobal)}</b> &bull; Altas: <b class="alt-val">${fmtPct(ag.pAltas)}</b></div>
@@ -2910,25 +2950,198 @@
         hCrud += `</tbody></table>`;
         document.getElementById('p10-agents-crud').innerHTML = hCrud;
 
+        if (document.getElementById('new-aa-reg')) document.getElementById('new-aa-reg').value = currentRegion;
+        if (document.getElementById('new-ag-reg')) document.getElementById('new-ag-reg').value = currentRegion;
+
         const aaMetas = STATE.config.aaMetas || {};
-        let hAa = `<table><thead><tr><th class="left">Parceiro AA</th><th class="grp-sep">Reg.</th><th>Meta Vendas</th><th>Meta Altas</th><th>Status</th></tr></thead><tbody>`;
+        let hAa = `<table><thead><tr><th class="left">Parceiro AA (Fantasia / Razão Social BI)</th><th class="grp-sep">Reg.</th><th>Meta Vendas</th><th>Meta Altas</th><th>Status</th><th>Ação</th></tr></thead><tbody>`;
         Object.keys(aaMetas).forEach(fantasia => {
             const info = aaMetas[fantasia];
             if (info.reg !== currentRegion) return;
+            const safeKey = fantasia.replace(/\/g, '\\').replace(/'/g, "\'");
+            const razSub = info.raz ? `<div style="font-size:0.63rem; color:var(--text-muted); font-weight:400; max-width:210px; overflow:hidden; text-overflow:ellipsis;" title="${info.raz}">${info.raz}</div>` : '';
             hAa += `<tr>
-                <td class="left"><b>${fantasia}</b></td>
+                <td class="left"><b>${fantasia}</b>${razSub}</td>
                 <td class="grp-sep">${info.reg}</td>
-                <td><input type="number" min="0" value="${Number(info.mV) || 0}" style="width:65px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta('${fantasia}', 'mV', this.value)"></td>
-                <td><input type="number" min="0" value="${Number(info.mA) || 0}" style="width:65px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta('${fantasia}', 'mA', this.value)"></td>
-                <td><select style="width:85px; font-weight:600; border:1px solid #CBD5E1;" onchange="updateAaMeta('${fantasia}', 'status', this.value)">
+                <td><input type="number" min="0" value="${Number(info.mV) || 0}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta('${safeKey}', 'mV', this.value)"></td>
+                <td><input type="number" min="0" value="${Number(info.mA) || 0}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta('${safeKey}', 'mA', this.value)"></td>
+                <td><select style="width:80px; font-weight:600; border:1px solid #CBD5E1;" onchange="updateAaMeta('${safeKey}', 'status', this.value)">
                     <option value="Ativo" ${info.status === 'Ativo' ? 'selected' : ''}>Ativo</option>
                     <option value="Inativo" ${info.status === 'Inativo' ? 'selected' : ''}>Inativo</option>
                 </select></td>
+                <td><button class="btn danger" title="Excluir Parceiro AA" onclick="removeAaPartner('${safeKey}')"><i class="fa-solid fa-trash-can"></i></button></td>
             </tr>`;
         });
         hAa += `</tbody></table>`;
         document.getElementById('p10-aa-crud').innerHTML = hAa;
-        
+        renderHistCrud();
+    }
+
+    function renderHistCrud() {
+        const container = document.getElementById('p10-hist-crud');
+        if (!container || !adminUnlocked) return;
+        const ch = (document.getElementById('hist-edit-channel') && document.getElementById('hist-edit-channel').value) || 'PaP';
+        const metricMode = (document.getElementById('hist-edit-metric') && document.getElementById('hist-edit-metric').value) || 'both';
+        const query = normName((document.getElementById('hist-edit-search') && document.getElementById('hist-edit-search').value) || '');
+
+        const hist = STATE.historico[currentRegion];
+        const meses = hist.meses || [];
+        const totalMeses = meses.length;
+
+        if (!STATE.sellerHist) STATE.sellerHist = {};
+        if (!STATE.sellerHist[currentRegion]) STATE.sellerHist[currentRegion] = {};
+        if (!STATE.sellerHist[currentRegion][ch]) STATE.sellerHist[currentRegion][ch] = { groups: [], byKey: {} };
+        const sNode = STATE.sellerHist[currentRegion][ch];
+        if (!sNode.byKey) sNode.byKey = {};
+
+        const itemsMap = {};
+        if (ch === 'AA') {
+            const aaMetas = STATE.config.aaMetas || {};
+            Object.keys(aaMetas).forEach(fantasia => {
+                if (aaMetas[fantasia].reg !== currentRegion) return;
+                const k = normName(fantasia);
+                if (k === 'N IDENTIFICADO' || k === 'NAO IDENTIFICADO') return;
+                const rec = sNode.byKey[k] || {};
+                itemsMap[k] = {
+                    key: k,
+                    nome: fantasia,
+                    sub: aaMetas[fantasia].status || 'Ativo',
+                    vHist: Array.isArray(rec.vHist) ? rec.vHist : Array(totalMeses).fill(null),
+                    aHist: Array.isArray(rec.aHist) ? rec.aHist : Array(totalMeses).fill(null)
+                };
+            });
+            Object.keys(sNode.byKey).forEach(k => {
+                if (k === 'N IDENTIFICADO' || k === 'NAO IDENTIFICADO') return;
+                if (!itemsMap[k]) {
+                    const rec = sNode.byKey[k];
+                    itemsMap[k] = {
+                        key: k,
+                        nome: rec.nome || k,
+                        sub: 'Histórico',
+                        vHist: Array.isArray(rec.vHist) ? rec.vHist : Array(totalMeses).fill(null),
+                        aHist: Array.isArray(rec.aHist) ? rec.aHist : Array(totalMeses).fill(null)
+                    };
+                }
+            });
+        } else {
+            STATE.agents.forEach(a => {
+                if (a[2] !== currentRegion || a[7] === 'Inativo') return;
+                if (a[4] !== ch) return;
+                const k = normName(a[0]);
+                const rec = sNode.byKey[k] || {};
+                itemsMap[k] = {
+                    key: k,
+                    nome: a[0].toUpperCase(),
+                    sub: a[5] || a[3] || ch,
+                    vHist: Array.isArray(rec.vHist) ? rec.vHist : Array(totalMeses).fill(null),
+                    aHist: Array.isArray(rec.aHist) ? rec.aHist : Array(totalMeses).fill(null)
+                };
+            });
+            Object.keys(sNode.byKey).forEach(k => {
+                if (!itemsMap[k]) {
+                    const rec = sNode.byKey[k];
+                    itemsMap[k] = {
+                        key: k,
+                        nome: rec.nome || k,
+                        sub: rec.grupo || ch,
+                        vHist: Array.isArray(rec.vHist) ? rec.vHist : Array(totalMeses).fill(null),
+                        aHist: Array.isArray(rec.aHist) ? rec.aHist : Array(totalMeses).fill(null)
+                    };
+                }
+            });
+        }
+
+        const list = Object.values(itemsMap)
+            .filter(it => !query || normName(it.nome).includes(query) || normName(it.sub).includes(query))
+            .sort((a, b) => a.nome.localeCompare(b.nome));
+
+        if (list.length === 0) {
+            container.innerHTML = '<p style="padding:12px; font-size:0.75rem; color:var(--text-muted);">Nenhum registro encontrado para este canal/filtro.</p>';
+            return;
+        }
+
+        let h = `<table><thead><tr><th class="left">Colaborador / Parceiro AA</th><th class="grp-sep">Indicador</th>`;
+        meses.forEach(m => { h += `<th>${m}</th>`; });
+        h += `<th class="grp-sep" style="border-left:2px solid var(--border-grp);">Total</th></tr></thead><tbody>`;
+
+        list.forEach(it => {
+            const safeKey = it.key.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const rowsToBuild = [];
+            if (metricMode === 'both' || metricMode === 'vHist') rowsToBuild.push({ field: 'vHist', label: 'Vendas', arr: it.vHist, color: 'var(--evo-blue)' });
+            if (metricMode === 'both' || metricMode === 'aHist') rowsToBuild.push({ field: 'aHist', label: 'Altas', arr: it.aHist, color: 'var(--green)' });
+
+            rowsToBuild.forEach((rb, rIdx) => {
+                let sum = 0;
+                h += `<tr>`;
+                if (rIdx === 0) {
+                    h += `<td class="left" rowspan="${rowsToBuild.length}" style="vertical-align:middle; background:#FFFFFF;"><b>${it.nome}</b><div style="font-size:0.63rem; color:var(--text-muted);">${it.sub}</div></td>`;
+                }
+                h += `<td class="grp-sep" style="font-weight:700; color:${rb.color};">${rb.label}</td>`;
+                for (let mIdx = 0; mIdx < totalMeses; mIdx++) {
+                    const v = rb.arr[mIdx];
+                    if (v !== null && v !== undefined && !isNaN(Number(v))) sum += Number(v);
+                    const dispVal = (v !== null && v !== undefined) ? v : '';
+                    h += `<td style="padding:2px;"><input type="number" min="0" value="${dispVal}" placeholder="-" style="width:46px; padding:3px 2px; text-align:center; font-size:0.72rem; font-weight:600; background:#FFFBEB; border:1px solid #CBD5E1;" onchange="updateSellerHistVal('${ch}', '${safeKey}', '${rb.field}', ${mIdx}, this.value)"></td>`;
+                }
+                h += `<td style="font-weight:700; border-left:2px solid var(--border-grp);">${fmtInt(sum)}</td></tr>`;
+            });
+        });
+
+        h += `</tbody></table>`;
+        container.innerHTML = h;
+    }
+
+    function updateSellerHistVal(ch, key, field, mIdx, rawVal) {
+        if (!checkAdminPass()) { renderAll(); return; }
+        const hist = STATE.historico[currentRegion];
+        const totalMeses = (hist.meses || []).length;
+
+        if (!STATE.sellerHist) STATE.sellerHist = {};
+        if (!STATE.sellerHist[currentRegion]) STATE.sellerHist[currentRegion] = {};
+        if (!STATE.sellerHist[currentRegion][ch]) STATE.sellerHist[currentRegion][ch] = { groups: [], byKey: {} };
+        const sNode = STATE.sellerHist[currentRegion][ch];
+        if (!sNode.byKey) sNode.byKey = {};
+
+        if (!sNode.byKey[key]) {
+            const ag = STATE.agents.find(a => a[2] === currentRegion && normName(a[0]) === key);
+            sNode.byKey[key] = {
+                nome: ag ? ag[0].toUpperCase() : key,
+                apelido: ag ? (ag[1] || ag[0].split(' ')[0]) : key,
+                vHist: Array(totalMeses).fill(null),
+                aHist: Array(totalMeses).fill(null)
+            };
+        }
+        const rec = sNode.byKey[key];
+        if (!Array.isArray(rec.vHist)) rec.vHist = Array(totalMeses).fill(null);
+        if (!Array.isArray(rec.aHist)) rec.aHist = Array(totalMeses).fill(null);
+
+        const oldNum = Number(rec[field][mIdx]) || 0;
+        let newNum = 0;
+        if (String(rawVal).trim() === '') {
+            rec[field][mIdx] = null;
+            newNum = 0;
+        } else {
+            newNum = Math.max(0, parseInt(rawVal, 10) || 0);
+            rec[field][mIdx] = newNum;
+        }
+
+        const delta = newNum - oldNum;
+        if (delta !== 0 && (ch === 'Lojas' || ch === 'PaP') && Array.isArray(sNode.groups)) {
+            const ag = STATE.agents.find(a => a[2] === currentRegion && a[4] === ch && normName(a[0]) === key);
+            const grpName = ag ? normName(ag[5]) : '';
+            if (grpName) {
+                const grpObj = sNode.groups.find(g => normName(g.grupo) === grpName);
+                if (grpObj && Array.isArray(grpObj[field])) {
+                    grpObj[field][mIdx] = Math.max(0, (Number(grpObj[field][mIdx]) || 0) + delta);
+                }
+            }
+        }
+
+        stampLastUpdate();
+        renderAll();
+        pushCloudState(false);
+        const fb = document.getElementById('import-feedback');
+        if (fb) fb.textContent = 'Histórico mensal atualizado e sincronizado na nuvem!';
     }
 
     function resetSimulator() {
@@ -3071,6 +3284,78 @@
         stampLastUpdate();
         renderAll();
         pushCloudState(false);
+    }
+
+    function addAaManual() {
+        if (!checkAdminPass()) return;
+        const fantasia = (document.getElementById('new-aa-fantasia').value || '').trim().toUpperCase();
+        const razRaw   = (document.getElementById('new-aa-raz').value || '').trim().toUpperCase();
+        const reg      = document.getElementById('new-aa-reg').value || currentRegion;
+        const mV       = Math.max(0, parseInt(document.getElementById('new-aa-mv').value, 10) || 0);
+        const mA       = Math.max(0, parseInt(document.getElementById('new-aa-ma').value, 10) || 0);
+
+        if (!fantasia) {
+            alert('Informe o Nome Fantasia do parceiro AA.');
+            document.getElementById('new-aa-fantasia').focus();
+            return;
+        }
+        const raz = razRaw || fantasia;
+        if (!STATE.config.aaMetas) STATE.config.aaMetas = {};
+        if (!STATE.config.aaMap) STATE.config.aaMap = {};
+
+        STATE.config.aaMetas[fantasia] = {
+            raz: raz,
+            reg: reg,
+            mV: mV,
+            mA: mA,
+            status: 'Ativo'
+        };
+        STATE.config.aaMap[raz] = fantasia;
+        if (raz !== fantasia) {
+            STATE.config.aaMap[fantasia] = fantasia;
+        }
+        const totM = ((STATE.historico[reg] && STATE.historico[reg].meses) || []).length || 10;
+        if (!STATE.sellerHist) STATE.sellerHist = {};
+        if (!STATE.sellerHist[reg]) STATE.sellerHist[reg] = {};
+        if (!STATE.sellerHist[reg].AA) STATE.sellerHist[reg].AA = { order: [], byKey: {} };
+        const aaKey = normName(fantasia);
+        if (!STATE.sellerHist[reg].AA.byKey[aaKey]) {
+            STATE.sellerHist[reg].AA.byKey[aaKey] = {
+                nome: fantasia,
+                vHist: Array(totM).fill(null),
+                aHist: Array(totM).fill(null)
+            };
+        }
+        if (Array.isArray(STATE.sellerHist[reg].AA.order) && !STATE.sellerHist[reg].AA.order.includes(fantasia)) {
+            STATE.sellerHist[reg].AA.order.push(fantasia);
+        }
+
+        document.getElementById('new-aa-fantasia').value = '';
+        document.getElementById('new-aa-raz').value = '';
+        document.getElementById('new-aa-mv').value = '';
+        document.getElementById('new-aa-ma').value = '';
+
+        stampLastUpdate();
+        renderAll();
+        pushCloudState(false);
+        const fb = document.getElementById('import-feedback');
+        if (fb) fb.textContent = `Parceiro AA "${fantasia}" cadastrado e sincronizado na nuvem!`;
+    }
+
+    function removeAaPartner(fantasia) {
+        if (!checkAdminPass()) return;
+        if (confirm(`Deseja excluir o parceiro AA "${fantasia}" da lista de metas?`)) {
+            if (STATE.config.aaMetas && STATE.config.aaMetas[fantasia]) {
+                const raz = STATE.config.aaMetas[fantasia].raz;
+                delete STATE.config.aaMetas[fantasia];
+                if (raz && STATE.config.aaMap && STATE.config.aaMap[raz] === fantasia) {
+                    delete STATE.config.aaMap[raz];
+                }
+            }
+            stampLastUpdate();
+            renderAll();
+            pushCloudState(false);
+        }
     }
 
     function addAgentManual() {
