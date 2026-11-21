@@ -3928,13 +3928,20 @@
     }
 
     function calcEficienciaGlobal(pAltas, pAtiv, pPort) {
-        const portDobro = (pAltas >= 80 && pAtiv >= 70);
+        // Correção de precisão idêntica ao Excel: usa-se arredondamento para 2 casas nas métricas antes da avaliação lógica para evitar inconsistência decimal.
+        const rAltas = Math.round(Number(pAltas) * 100) / 100;
+        const rAtiv = Math.round(Number(pAtiv) * 100) / 100;
+        const rPort = Math.round(Number(pPort) * 100) / 100;
+
+        const portDobro = (rAltas >= 80 && rAtiv >= 70); 
         const pesoPort = portDobro ? 0.60 : 0.30;
         let acel = 0;
-        if (pAltas >= 115) acel = 8;
-        else if (pAltas >= 110) acel = 5;
-        else if (pAltas >= 105) acel = 3;
-        const eficGlobal = (pAltas * 0.50) + (pAtiv * 0.20) + (pPort * pesoPort) + acel;
+        if (rAltas >= 115) acel = 8;
+        else if (rAltas >= 110) acel = 5;
+        else if (rAltas >= 105) acel = 3;
+        
+        // A fórmula exata conforme BD_Geral
+        const eficGlobal = (rAltas * 0.50) + (rAtiv * 0.20) + (rPort * pesoPort) + acel;
         return { eficGlobal, portDobro, pesoPort, acel };
     }
 
@@ -4047,8 +4054,8 @@
                 const metaAtiv  = Number(a[10]) || 0;
                 const metaPort  = Number(a[11]) || 0;
 
-                const projAltas = prod.a * du.fator;
-                const projAtiv  = ativReal * du.fator;
+                const projAltas = Math.round(prod.a * du.fator);
+                const projAtiv  = Math.round(ativReal * du.fator);
 
                 const pAltas = metaAltas > 0 ? (projAltas / metaAltas) * 100 : 0;
                 const pAtiv  = metaAtiv  > 0 ? (projAtiv  / metaAtiv)  * 100 : 0;
@@ -4121,15 +4128,17 @@
         bkoRk.sort((a, b) => b.efic - a.efic);
 
         const leadersRk = Object.values(leadersMap).map(l => {
+            // A meta da liderança (exceto Kelvin) é 85% da soma da equipe, e no painel em Excel essa meta é arredondada (Math.round) ANTES de calcular o atingimento.
             const mAltas = l.nome === 'KELVIN ANZORENA' ? l.metaAltas : Math.round(l.metaAltas * 0.85);
             const mAtiv  = l.nome === 'KELVIN ANZORENA' ? l.metaAtiv : Math.round(l.metaAtiv * 0.85);
             const mPort  = l.nome === 'KELVIN ANZORENA' ? l.metaPort : Math.round(l.metaPort * 0.85);
             
-            const projAltas = l.realAltas * du.fator;
-            const projAtiv  = l.realAtiv  * du.fator;
+            const projAltas = Math.round(l.realAltas * du.fator);
+            const projAtiv  = Math.round(l.realAtiv  * du.fator);
             const pAltas = mAltas > 0 ? (projAltas / mAltas) * 100 : 0;
             const pAtiv  = mAtiv  > 0 ? (projAtiv  / mAtiv)  * 100 : 0;
             const pPort  = mPort  > 0 ? (l.realPort / mPort) * 100 : 0;
+            
             const { eficGlobal, portDobro, pesoPort, acel } = calcEficienciaGlobal(pAltas, pAtiv, pPort);
             return {
                 nome: l.nome,
@@ -4618,11 +4627,11 @@
         const { du } = getRegionMetrics();
 
         const simRealAltas = item.realAltas + addAltas;
-        const simTendAltas = simRealAltas * du.fator;
+        const simTendAltas = Math.round(simRealAltas * du.fator);
         const simPctAltas  = item.metaAltas > 0 ? (simTendAltas / item.metaAltas) * 100 : 0;
 
         const simRealAtiv  = item.realAtiv + addAtiv;
-        const simTendAtiv  = simRealAtiv * du.fator;
+        const simTendAtiv  = Math.round(simRealAtiv * du.fator);
         const simPctAtiv   = item.metaAtiv > 0 ? (simTendAtiv / item.metaAtiv) * 100 : 0;
 
         const simRealPort  = item.realPort + addPort;
