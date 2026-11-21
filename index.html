@@ -4046,6 +4046,14 @@
 
         const agentsRk = [];
         const bkoRk = [];
+        const HC_CAPACITY = (STATE.config && STATE.config.hcCapacity) || {
+            'NATASHA SILVA': { maxLojas: 9, maxPaP: 0 },
+            'TAMIRES LUCENA': { maxLojas: 10, maxPaP: 0 },
+            'GUSTAVO DANTAS': { maxLojas: 4, maxPaP: 3 },
+            'YASMIN COELHO': { maxLojas: 2, maxPaP: 4 },
+            'ARIANA PAZ': { maxLojas: 0, maxPaP: 7 }
+        };
+
         const leadersMap = {};
         let kelvinPortReal = 0;
 
@@ -4155,9 +4163,28 @@
         bkoRk.sort((a, b) => b.efic - a.efic);
 
         const leadersRk = Object.values(leadersMap).map(l => {
-            const mAltas = l.isKelvin ? l.metaAltas : (l.metaAltas * 0.85);
-            const mAtiv  = l.isKelvin ? l.metaAtiv  : (l.metaAtiv  * 0.85);
+            let mAltas = l.isKelvin ? l.metaAltas : (l.metaAltas * 0.85);
+            let mAtiv  = l.isKelvin ? l.metaAtiv  : (l.metaAtiv  * 0.85);
             const mPort  = l.isKelvin ? 0           : (l.metaPort  * 0.85);
+            
+            // Adiciona penalidade por vagas abertas (50% da meta inicial de rampagem: 2.5 Altas, 1 Ativ por vaga)
+            if (!l.isKelvin && HC_CAPACITY[l.nome]) {
+                const cap = HC_CAPACITY[l.nome];
+                // Conta quantos agentes ativos o líder tem em cada canal
+                let activeLojas = 0, activePaP = 0;
+                STATE.agents.forEach(a => {
+                    if (a[2] === reg && a[7] === 'Ativo' && (a[13] || '').toUpperCase().trim() === l.nome) {
+                        if (a[4] === 'Lojas') activeLojas++;
+                        if (a[4] === 'PaP') activePaP++;
+                    }
+                });
+                const openLojas = Math.max(0, cap.maxLojas - activeLojas);
+                const openPaP   = Math.max(0, cap.maxPaP - activePaP);
+                const totalOpen = openLojas + openPaP;
+                
+                mAltas += (totalOpen * 2.5);
+                mAtiv  += (totalOpen * 1.0); // 50% de 2 ativações = 1 ativação por vaga
+            }
             
             const projAltas = l.projAltas;
             const projAtiv  = l.projAtiv;
