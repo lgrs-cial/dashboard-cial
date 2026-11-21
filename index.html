@@ -735,15 +735,38 @@
         #p10 td {
             padding: 0.18rem 0.20rem;
         }
-        #p10 td input[type="number"] {
-            width: 40px !important;
-            padding: 2px 1px !important;
-            font-size: 0.64rem !important;
+        #p10-prodrules-table th {
+            font-size: 0.67rem !important;
+            padding: 0.36rem 0.55rem !important;
+            line-height: 1.25 !important;
         }
-        #p10 td select {
-            width: 60px !important;
-            padding: 2px 1px !important;
-            font-size: 0.63rem !important;
+        #p10-prodrules-table td {
+            padding: 0.36rem 0.55rem !important;
+            font-size: 0.76rem !important;
+        }
+        #p10-prodrules-table td input[type="number"] {
+            width: 82px !important;
+            height: 28px !important;
+            padding: 3px 6px !important;
+            font-size: 0.80rem !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            background: #FFFBEB !important;
+            border: 1.5px solid #C59B27 !important;
+            border-radius: 5px !important;
+            color: #0F172A !important;
+        }
+        #p10-agents-crud td input[type="number"],
+        #p10-aa-crud td input[type="number"] {
+            width: 44px !important;
+            padding: 2px 2px !important;
+            font-size: 0.66rem !important;
+        }
+        #p10-agents-crud td select,
+        #p10-aa-crud td select {
+            width: 62px !important;
+            padding: 2px 2px !important;
+            font-size: 0.64rem !important;
         }
         #p10 .p10-ag-name {
             max-width: 150px;
@@ -1272,18 +1295,24 @@
                 <div class="card-box">
                     <div class="box-header">
                         <div class="box-title"><i class="fa-solid fa-mobile-retro"></i> Metas, Admissão & Portabilidade — Vendedores</div>
-                        <span style="font-size:0.62rem; color:var(--text-muted);">Admissão define Rampagem | Portab. Bko &rarr; Líder AA</span>
+                        <span style="font-size:0.62rem; color:var(--text-muted);">Admissão define Rampagem | Bko: Líder Brenna Moura</span>
                     </div>
-                    <div class="filter-bar">
-                        <input type="text" id="new-ag-nome" placeholder="Nome Exato BI" style="min-width:95px; flex:1.2;">
-                        <select id="new-ag-reg" style="width:42px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
-                        <input type="text" id="new-ag-uni" placeholder="Unidade" style="width:68px;">
-                        <select id="new-ag-canal" style="width:72px;"><option value="Lojas">Lojas</option><option value="PaP">PaP</option><option value="Inside Sales">Inside Sales</option><option value="Bko">Bko</option></select>
-                        <input type="text" id="new-ag-lider" placeholder="Líder" style="width:68px;">
-                        <input type="date" id="new-ag-adm" title="Data de Admissão (Rampagem)" style="width:98px;">
-                        <input type="number" id="new-ag-meta-altas" placeholder="M.Alt" min="0" style="width:42px;">
-                        <input type="number" id="new-ag-meta-ativ" placeholder="M.Ativ" min="0" style="width:44px;">
-                        <button class="btn" onclick="addAgentManual()"><i class="fa-solid fa-plus"></i> Inserir</button>
+                    <div style="background:#F1F5F9; border:1px solid #CBD5E1; border-radius:5px; padding:6px 8px; display:flex; flex-direction:column; gap:5px;">
+                        <div class="filter-bar">
+                            <input type="text" id="new-ag-nome" placeholder="Nome Exato BI" style="min-width:130px; flex:1.5;">
+                            <select id="new-ag-reg" style="width:48px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
+                            <input type="text" id="new-ag-uni" placeholder="Unidade (ex: GRS)" style="width:94px;">
+                            <select id="new-ag-canal" onchange="if(this.value==='Bko' && !document.getElementById('new-ag-lider').value) document.getElementById('new-ag-lider').value='BRENNA MOURA';" style="width:92px;"><option value="Lojas">Lojas</option><option value="PaP">PaP</option><option value="Inside Sales">Inside Sales</option><option value="Bko">Bko</option></select>
+                            <input type="text" id="new-ag-lider" placeholder="Líder" style="width:105px;">
+                        </div>
+                        <div class="filter-bar" style="justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                <label style="font-weight:600; color:var(--evo-navy);">Admissão: <input type="date" id="new-ag-adm" title="Data de Admissão (Rampagem)" style="width:112px;"></label>
+                                <label style="font-weight:600; color:var(--evo-navy);">Meta Altas: <input type="number" id="new-ag-meta-altas" placeholder="Ex: 12" min="0" style="width:62px; text-align:center; font-weight:600;"></label>
+                                <label style="font-weight:600; color:var(--evo-navy);">Meta Ativ.: <input type="number" id="new-ag-meta-ativ" placeholder="Ex: 5" min="0" style="width:62px; text-align:center; font-weight:600;"></label>
+                            </div>
+                            <button class="btn" style="padding:5px 12px;" onclick="addAgentManual()"><i class="fa-solid fa-plus"></i> Inserir</button>
+                        </div>
                     </div>
                     <div class="table-wrap" style="max-height:290px; overflow-y:auto;" id="p10-agents-crud"></div>
                 </div>
@@ -1293,14 +1322,20 @@
                         <div class="box-title"><i class="fa-solid fa-handshake"></i> Parceiros AA (De-Para BI & Metas)</div>
                         <span style="font-size:0.62rem; color:var(--text-muted);">Fantasia + Razão Social BI</span>
                     </div>
-                    <div class="filter-bar">
-                        <input type="text" id="new-aa-fantasia" placeholder="Fantasia" style="min-width:85px; flex:1;">
-                        <input type="text" id="new-aa-raz" placeholder="Razão Social BI" style="min-width:105px; flex:1.1;">
-                        <select id="new-aa-reg" style="width:44px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
-                        <input type="number" id="new-aa-mv" placeholder="M.Vnd" min="0" style="width:48px;">
-                        <input type="number" id="new-aa-ma" placeholder="M.Alt" min="0" style="width:48px;">
-                        <input type="number" id="new-aa-mativ" placeholder="M.Ativ" min="0" style="width:48px;">
-                        <button class="btn" onclick="addAaManual()"><i class="fa-solid fa-plus"></i> Inserir AA</button>
+                    <div style="background:#F1F5F9; border:1px solid #CBD5E1; border-radius:5px; padding:6px 8px; display:flex; flex-direction:column; gap:5px;">
+                        <div class="filter-bar">
+                            <input type="text" id="new-aa-fantasia" placeholder="Nome Fantasia" style="min-width:95px; flex:1;">
+                            <input type="text" id="new-aa-raz" placeholder="Razão Social BI" style="min-width:125px; flex:1.3;">
+                            <select id="new-aa-reg" style="width:48px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
+                        </div>
+                        <div class="filter-bar" style="justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                <label style="font-weight:600; color:var(--evo-navy);">M. Vendas: <input type="number" id="new-aa-mv" placeholder="0" min="0" style="width:58px; text-align:center; font-weight:600;"></label>
+                                <label style="font-weight:600; color:var(--evo-navy);">M. Altas: <input type="number" id="new-aa-ma" placeholder="0" min="0" style="width:58px; text-align:center; font-weight:600;"></label>
+                                <label style="font-weight:600; color:var(--evo-navy);">M. Ativ.: <input type="number" id="new-aa-mativ" placeholder="0" min="0" style="width:58px; text-align:center; font-weight:600;"></label>
+                            </div>
+                            <button class="btn" style="padding:5px 12px;" onclick="addAaManual()"><i class="fa-solid fa-plus"></i> Inserir AA</button>
+                        </div>
                     </div>
                     <div class="table-wrap" style="max-height:290px; overflow-y:auto;" id="p10-aa-crud"></div>
                 </div>
@@ -4331,7 +4366,17 @@
         renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
-        if (fb) fb.textContent = 'Data de admissão / rampagem atualizada!';
+        if (fb) fb.textContent = 'Data de admissão / rampagem atualizada e sincronizada na Nuvem!';
+    }
+
+    function updateAgentLeader(idx, val) {
+        if (!checkAdminPass()) { renderAll(); return; }
+        STATE.agents[idx][13] = (val || '').trim().toUpperCase();
+        stampLastUpdate();
+        renderAll();
+        pushCloudState(false);
+        const fb = document.getElementById('import-feedback');
+        if (fb) fb.textContent = 'Líder atualizado e sincronizado na Nuvem!';
     }
 
     function renderAdminAndSim() {
@@ -4419,7 +4464,7 @@
                 <td class="left" title="${a[0]}"><span class="p10-ag-name"><b>${a[0]}</b></span></td>
                 <td>${a[4]}</td>
                 <td>${admCell}</td>
-                <td title="${a[13] || a[5]}">${liderShort}</td>
+                <td><input type="text" value="${(a[13] || a[5] || '').toUpperCase()}" style="width:112px; padding:2px 4px; font-size:0.63rem; font-weight:600; border:1px solid #CBD5E1; text-transform:uppercase;" onchange="updateAgentLeader(${idx}, this.value)"></td>
                 <td>${mAltasCell}</td>
                 <td>${mAtivCell}</td>
                 <td class="grp-sep">${portCell}</td>
@@ -4696,7 +4741,7 @@
         const reg  = document.getElementById('new-ag-reg').value;
         const uni  = document.getElementById('new-ag-uni').value.trim().toUpperCase() || ('AMIGO ' + reg + ' GRS');
         const canal = document.getElementById('new-ag-canal').value;
-        const lider = document.getElementById('new-ag-lider').value.trim().toUpperCase() || uni;
+        const lider = document.getElementById('new-ag-lider').value.trim().toUpperCase() || (canal === 'Bko' ? 'BRENNA MOURA' : uni);
         const admInp = (document.getElementById('new-ag-adm') && document.getElementById('new-ag-adm').value) || new Date().toISOString().slice(0, 10);
         const metaAltas = Number(document.getElementById('new-ag-meta-altas').value) || 12;
         const metaAtiv = Number((document.getElementById('new-ag-meta-ativ') && document.getElementById('new-ag-meta-ativ').value) || 5) || 5;
@@ -5032,10 +5077,12 @@
         if (remoteTs > 0 && localTs > 0 && remoteTs <= localTs) return false;
         if (remoteStr === STATE.config.lastUpdate) return false;
 
+        let needsCloudMigrationPush = false;
         const preservedProdRules = STATE.config.prodRules;
         Object.assign(STATE.config, remote.config);
         if (!STATE.config.prodRules && preservedProdRules) {
             STATE.config.prodRules = preservedProdRules;
+            needsCloudMigrationPush = true;
         }
         ensureProdRules();
         if (remote.historico) {
@@ -5078,7 +5125,15 @@
                 setTimeout(() => { pushCloudState(false); }, 600);
             }
         }
-        if (remote.agents) STATE.agents = remote.agents;
+        if (remote.agents) {
+            STATE.agents = remote.agents;
+            STATE.agents.forEach(ag => {
+                if (ag && ag[4] === 'Bko' && (ag[13] || '').toUpperCase().trim() !== 'BRENNA MOURA') {
+                    ag[13] = 'BRENNA MOURA';
+                    needsCloudMigrationPush = true;
+                }
+            });
+        }
         if (remote.bl) STATE.bl = remote.bl;
         if (remote.movel) STATE.movel = remote.movel;
         if (remote.unitsHist) STATE.unitsHist = remote.unitsHist;
@@ -5158,6 +5213,10 @@
                     });
                 });
             });
+        }
+        if (needsCloudMigrationPush) {
+            stampLastUpdate();
+            setTimeout(() => { pushCloudState(false); }, 700);
         }
         if (dashboardBooted) renderAll();
         return true;
