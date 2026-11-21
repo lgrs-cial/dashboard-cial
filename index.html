@@ -760,27 +760,53 @@
         }
     
         /* ABA 1: MATRIZ EXECUTIVA COM PRESENCIAL VS REMOTO & PESOS */
-        #p1 { gap: 0.58rem; }
-        #p1 .kpi-card { padding: 0.45rem 0.78rem; }
-        #p1 .kpi-value { font-size: 1.30rem; }
-        #p1 .card-box { padding: 0.58rem 0.80rem; gap: 0.45rem; }
-        #p1 .box-title { font-size: 0.84rem; }
+        #p1 { gap: 0.55rem; }
+        #p1 .kpi-card { padding: 0.44rem 0.76rem; }
+        #p1 .kpi-value { font-size: 1.28rem; }
+        #p1 .card-box { padding: 0.54rem 0.74rem; gap: 0.42rem; min-width: 0; }
+        #p1 .box-title { font-size: 0.83rem; }
         #p1 .charts-duo-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.70rem;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 0.65rem;
         }
-        @media (max-width: 960px) { #p1 .charts-duo-grid { grid-template-columns: 1fr; } }
+        #p1 .charts-duo-grid > .card-box {
+            min-width: 0;
+            overflow: hidden;
+        }
+        @media (max-width: 960px) { #p1 .charts-duo-grid { grid-template-columns: minmax(0, 1fr); } }
 
         table.tbl-exec-matrix {
-            font-size: 0.69rem;
+            width: 100%;
+            table-layout: auto;
+            font-size: 0.68rem;
         }
-        table.tbl-exec-matrix th {
-            font-size: 0.65rem;
-            padding: 0.28rem 0.30rem;
+        table.tbl-exec-matrix thead th {
+            background: #0B2563 !important;
+            color: #FFFFFF !important;
+            font-size: 0.64rem;
+            font-weight: 700;
+            padding: 0.32rem 0.22rem;
+            border-bottom: 2px solid var(--evo-cyan);
+            border-right: 1px solid #24458E;
+        }
+        table.tbl-exec-matrix thead th.hist-col {
+            background: #173885 !important;
+            color: #F8FAFC !important;
+            opacity: 1 !important;
         }
         table.tbl-exec-matrix td {
-            padding: 0.24rem 0.30rem;
+            padding: 0.23rem 0.22rem;
+        }
+        table.tbl-exec-matrix.many-months {
+            font-size: 0.63rem;
+        }
+        table.tbl-exec-matrix.many-months thead th {
+            font-size: 0.59rem;
+            padding: 0.28rem 0.14rem;
+        }
+        table.tbl-exec-matrix.many-months td {
+            padding: 0.20rem 0.14rem;
         }
         table.tbl-exec-matrix tr.row-macro td {
             background: #E8F1FC !important;
@@ -1577,7 +1603,7 @@
                 if (val == null || val <= 0) return;
                 const barEl = barMeta.data[i];
                 const barW = barEl ? barEl.width : 28;
-                const halfW = Math.max(12, barW * 0.56);
+                const halfW = Math.max(9, barW * 0.64);
                 const x = pt.x;
                 const y = pt.y;
 
@@ -1798,6 +1824,16 @@
         metasHist.push(fcAtual);
         const projChartColor = projAtual >= fcAtual ? '#059669' : '#DC2626';
 
+        // Escala dinâmica conforme a quantidade de meses exibidos
+        const nCols = labelsHist.length;
+        const scaleFactor = nCols <= 11 ? 1 : Math.max(0.76, 11 / nCols);
+        const barPct = nCols <= 11 ? 0.62 : Math.max(0.46, 6.8 / nCols);
+        const catPct = nCols <= 11 ? 0.78 : 0.85;
+        const barFontSize = +(9.5 * scaleFactor).toFixed(1);
+        const fcFontSize = +(9.0 * scaleFactor).toFixed(1);
+        const projFontSize = +(10.0 * scaleFactor).toFixed(1);
+        const tickFontSize = +(10.0 * scaleFactor).toFixed(1);
+
         const canvasEl = document.getElementById(canvasId);
         if (!canvasEl) return null;
         const ctx2d = canvasEl.getContext('2d');
@@ -1821,13 +1857,17 @@
                         data: [...totalsHist, realAtual],
                         backgroundColor: (ctx) => ctx.dataIndex === labelsHist.length - 1 ? gradAtual : gradHist,
                         borderRadius: 4,
+                        barPercentage: barPct,
+                        categoryPercentage: catPct,
                         stack: 'stack0',
                         datalabels: {
                             display: true,
                             anchor: 'center',
                             align: 'center',
                             color: '#FFFFFF',
-                            font: { family: 'Inter', size: 8.5, weight: '600' },
+                            textShadowColor: 'rgba(0, 14, 48, 0.75)',
+                            textShadowBlur: 3,
+                            font: { family: "'Plus Jakarta Sans', 'Inter', sans-serif", size: barFontSize, weight: '700' },
                             formatter: v => v > 0 ? v.toLocaleString('pt-BR') : ''
                         }
                     },
@@ -1839,6 +1879,8 @@
                         borderColor: '#00A8E8',
                         borderWidth: { top: 1.5, left: 1, right: 1, bottom: 0 },
                         borderRadius: { topLeft: 4, topRight: 4 },
+                        barPercentage: barPct,
+                        categoryPercentage: catPct,
                         stack: 'stack0',
                         datalabels: {
                             display: (ctx) => ctx.dataIndex === labelsHist.length - 1,
@@ -1853,10 +1895,12 @@
                                 return extra + 7;
                             },
                             color: projChartColor,
-                            backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                            backgroundColor: '#FFFFFF',
+                            borderColor: projChartColor,
+                            borderWidth: 1,
                             borderRadius: 3,
-                            padding: { top: 1, bottom: 1, left: 3, right: 3 },
-                            font: { family: 'Inter', size: 9, weight: '700' },
+                            padding: { top: 1, bottom: 1, left: 4, right: 4 },
+                            font: { family: "'Plus Jakarta Sans', 'Inter', sans-serif", size: projFontSize, weight: '800' },
                             formatter: () => 'Proj: ' + projAtual.toLocaleString('pt-BR')
                         }
                     },
@@ -1880,12 +1924,14 @@
                                 const metaVal = metasHist[idx];
                                 return metaVal >= barTop ? 'top' : 'bottom';
                             },
-                            offset: 3,
-                            color: '#C2410C',
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            offset: 4,
+                            color: '#9A3412',
+                            backgroundColor: '#FFF7ED',
+                            borderColor: '#FDBA74',
+                            borderWidth: 1,
                             borderRadius: 3,
                             padding: { top: 1, bottom: 1, left: 3, right: 3 },
-                            font: { family: 'Inter', size: 8, weight: '700' },
+                            font: { family: "'Plus Jakarta Sans', 'Inter', sans-serif", size: fcFontSize, weight: '700' },
                             formatter: (v, ctx) => (ctx.dataIndex === labelsHist.length - 1 ? 'FC: ' : '') + v.toLocaleString('pt-BR')
                         }
                     }
@@ -1894,14 +1940,33 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { top: 26, right: 8 } },
+                devicePixelRatio: Math.max(window.devicePixelRatio || 1, 2),
+                layout: { padding: { top: 28, right: 8, left: 4 } },
                 plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { family: 'Inter', size: 10, weight: '500' } } },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 11,
+                            boxHeight: 11,
+                            padding: 10,
+                            color: '#0F172A',
+                            font: { family: "'Plus Jakarta Sans', 'Inter', sans-serif", size: 11, weight: '600' }
+                        }
+                    },
                     tooltip: { mode: 'index', intersect: false }
                 },
                 scales: {
-                    x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Inter', size: 9.5, weight: '600' }, color: '#475569' } },
-                    y: { stacked: true, display: false, min: 0, suggestedMax: Math.max(...totalsHist, projAtual, ...metasHist) * 1.25 }
+                    x: {
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 0,
+                            font: { family: "'Plus Jakarta Sans', 'Inter', sans-serif", size: tickFontSize, weight: '700' },
+                            color: '#1E293B'
+                        }
+                    },
+                    y: { stacked: true, display: false, min: 0, suggestedMax: Math.max(...totalsHist, projAtual, ...metasHist) * 1.26 }
                 }
             }
         });
@@ -1992,7 +2057,8 @@
         const sF = channels.reduce((s, c) => s + (tF[c] || 0), 0);
         const totHistByMonth = hist.meses.map((_, i) => channels.reduce((s, c) => s + (tS[c][i] || 0), 0));
 
-        let h = `<table class="tbl-exec-matrix"><thead><tr><th class="left grp-sep">Canal / Grupo</th>`;
+        const manyMonthsCls = (hist.meses && hist.meses.length > 10) ? " many-months" : "";
+        let h = `<table class="tbl-exec-matrix${manyMonthsCls}"><thead><tr><th class="left grp-sep">Canal / Grupo</th>`;
         hist.meses.forEach((m, idx) => h += `<th class="hist-col ${idx === hist.meses.length - 1 ? 'grp-sep' : ''}">${m}</th>`);
         h += `<th>Meta</th><th class="grp-sep">FC</th><th>Real</th><th class="grp-sep">Proj.</th><th>% FC</th><th class="grp-sep">M-1</th><th>Efic.</th></tr></thead><tbody>`;
 
@@ -2540,7 +2606,7 @@
             if (!k) return;
             if (ch !== 'AA' && (k === 'NAO IDENTIFICADO' || k === 'N IDENTIFICADO')) return;
             if (!pM[k]) {
-                if (ch === 'AA') return; // Ignora parceiros AA não cadastrados em aaMetas
+                if (ch === 'AA' || ch === 'PaP' || ch === 'Lojas') return; // Ignora parceiros/agentes não cadastrados
                 // Check if they exist in STATE.agents as Inativo
                 const isInactive = STATE.agents.some(a => normName(a[0]) === k && a[7] === 'Inativo');
                 if (isInactive) return; // Skip showing inactive agents even if they have residual sales
@@ -3183,7 +3249,7 @@
                                 aHist: Array.isArray(hRec.aHist) ? hRec.aHist : Array(totalMeses).fill(null)
                             };
                         }
-                    } else if (mCh === chTarget) {
+                    } else if (mCh === chTarget && chTarget !== 'PaP' && chTarget !== 'Lojas') {
                         const hRec = byKeyMvHist[k] || {};
                         pM[k] = {
                             key: k,
