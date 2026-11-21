@@ -1303,13 +1303,7 @@
                 <div class="table-wrap" id="p10-prodrules-table"></div>
             </div>
 
-            <div class="card-box" id="p10-leadermetas-card">
-                <div class="box-header">
-                    <div class="box-title"><i class="fa-solid fa-crown"></i> Metas de Liderança — RK Líderes (85% Equipe ou Meta Consolidada)</div>
-                    <div class="filter-bar" id="p10-leadermetas-controls"></div>
-                </div>
-                <div class="table-wrap" id="p10-leadermetas-table"></div>
-            </div>
+
 
             <div class="grid-2" style="grid-template-columns: 1.15fr 0.85fr;">
                 <div class="card-box">
@@ -4006,30 +4000,14 @@
         return rawArea;
     }
 
-    function getDefaultLeaderMetasSP() {
-        return {
-            'NATASHA SILVA':   { area: 'UND',       metaAltas: 65.45,  metaAtiv: 27.20, mode: 'fixed' },
-            'TAMIRES LUCENA':  { area: 'UND',       metaAltas: 90.10,  metaAtiv: 42.50, mode: 'fixed' },
-            'GUSTAVO DANTAS':  { area: 'UND + PaP', metaAltas: 36.975, metaAtiv: 12.75, mode: 'fixed' },
-            'YASMIN COELHO':   { area: 'UND + PaP', metaAltas: 68.00,  metaAtiv: 25.50, mode: 'fixed' },
-            'KELVIN ANZORENA': { area: 'AA',        metaAltas: 386.00, metaAtiv: 64.00, mode: 'fixed' },
-            'ARIANA PAZ':      { area: 'PaP',       metaAltas: 83.30,  metaAtiv: 29.75, mode: 'fixed' }
-        };
-    }
-
-    function ensureLeaderMetas() {
-        if (!STATE.config) STATE.config = {};
-        if (!STATE.config.leaderMetas) {
-            STATE.config.leaderMetas = { SP: getDefaultLeaderMetasSP(), RJ: {} };
-        }
-        if (!STATE.config.leaderMetas.SP) STATE.config.leaderMetas.SP = getDefaultLeaderMetasSP();
-        if (!STATE.config.leaderMetas.RJ) STATE.config.leaderMetas.RJ = {};
-        return STATE.config.leaderMetas;
-    }
-
-    function computeRankings(regOverride) {
+        function computeRankings(regOverride) {
         const reg = regOverride || currentRegion;
-        const { du, blReg, mvReg, realAltas } = (reg === currentRegion) ? getRegionMetrics() : (() => {
+        
+        let dInfo;
+        if (reg === currentRegion) {
+            const { du, blReg, mvReg, realAltas, realVendas } = getRegionMetrics();
+            dInfo = { du, blReg, mvReg, realAltas, realVendas };
+        } else {
             const d = computeBusinessDays();
             const bR = STATE.bl.filter(r => r[3] === reg);
             const mR = STATE.movel.filter(r => {
@@ -4038,12 +4016,15 @@
                 return reg === 'SP' ? !isRJ : isRJ;
             });
             const rA = { 'Inside Sales': 0, 'Digital': 0, 'Lojas': 0, 'PaP': 0, 'AA': 0 };
+            const rV = { 'Inside Sales': 0, 'Digital': 0, 'Lojas': 0, 'PaP': 0, 'AA': 0 };
             bR.forEach(r => {
                 const ch = mapChannel(r[1]).short;
                 if (rA[ch] !== undefined) rA[ch] += (Number(r[7]) || 0);
+                if (rV[ch] !== undefined) rV[ch] += (Number(r[6]) || 0);
             });
-            return { du: d, blReg: bR, mvReg: mR, realAltas: rA };
-        })();
+            dInfo = { du: d, blReg: bR, mvReg: mR, realAltas: rA, realVendas: rV };
+        }
+        const { du, blReg, mvReg, realAltas } = dInfo;
 
         const bkoSet = new Set();
         STATE.agents.forEach(a => {
@@ -4092,7 +4073,11 @@
             if (canal === 'Bko') {
                 const convBko = prod.v > 0 ? (prod.a / prod.v) * 100 : 0;
                 bkoRk.push({ nome, apelido: a[1], propostas: prod.v, altas: prod.a, efic: convBko, portReal });
-                kelvinPortReal += portReal;
+                
+                // Soma dinâmica das Portabilidades dos assistentes de Bko da AA (Kelvin)
+                if ((a[5] || '').includes('AA') || liderNome === 'KELVIN ANZORENA' || liderNome === 'LÍDER AA RJ') {
+                    kelvinPortReal += portReal;
+                }
             } else if (canal === 'Lojas' || canal === 'PaP') {
                 const metaAltas = Number(a[9]) || 0;
                 const metaAtiv  = Number(a[10]) || 0;
@@ -4102,8 +4087,9 @@
                 const agDuCorridos = computeAgentDuCorridos(admIso, du);
                 const agFator = du.duTotal / agDuCorridos;
 
-                const projAltas = prod.a * agFator;
-                const projAtiv  = ativReal * agFator;
+                // O % Projeção usa o valor projetado arredondado (inteiro), pois é isso que o operador visualiza e usa na sua conta matemática para saber o quanto falta.
+                const projAltas = Math.round(prod.a * agFator);
+                const projAtiv  = Math.round(ativReal * agFator);
 
                 const pAltas = metaAltas > 0 ? (projAltas / metaAltas) * 100 : 0;
                 const pAtiv  = metaAtiv  > 0 ? (projAtiv  / metaAtiv)  * 100 : 0;
@@ -4111,7 +4097,7 @@
 
                 const { eficGlobal, portDobro, pesoPort, acel } = calcEficienciaGlobal(pAltas, pAtiv, pPort);
 
-                if (liderNome && liderNome !== 'KELVIN ANZORENA') {
+                if (liderNome && liderNome !== 'KELVIN ANZORENA' && liderNome !== 'LÍDER AA RJ') {
                     if (!leadersMap[liderNome]) {
                         leadersMap[liderNome] = {
                             nome: liderNome,
@@ -4146,20 +4132,29 @@
             }
         });
 
-        const kCfg = (STATE.config.kelvinMeta && STATE.config.kelvinMeta[reg]) || { nome: 'KELVIN ANZORENA', area: 'AA', metaAltas: 386, metaAtiv: 64, metaPort: 11 };
+        // Automação da Meta do Líder de AA (Kelvin) baseado nas regras solicitadas
+        const kelvinNome = reg === 'SP' ? 'KELVIN ANZORENA' : 'LÍDER AA RJ';
+        const histReg = STATE.historico[reg];
         const kelvinAltasReal = realAltas['AA'] || 0;
+        
+        // 1. Meta de Vendas e Altas do Kelvin é sempre o valor do Consolidado do mês para o canal AA.
+        const kMetaAltas = (histReg && histReg.metasNov && histReg.metasNov.altas['AA']) || 0;
+        // 2. Meta de Ativações é 20% da Meta de Altas
+        const kMetaAtiv = Math.round(kMetaAltas * 0.20);
+        
         if (reg === 'SP' || kelvinAltasReal > 0 || kelvinAtivReal > 0 || kelvinPortReal > 0) {
-            leadersMap[kCfg.nome] = {
-                nome: kCfg.nome,
+            leadersMap[kelvinNome] = {
+                nome: kelvinNome,
                 canais: new Set(['AA']),
-                teamMetaAltas: Number(kCfg.metaAltas) || 386,
+                teamMetaAltas: kMetaAltas,
                 realAltas: kelvinAltasReal,
-                projAltas: kelvinAltasReal * du.fator,
-                teamMetaAtiv:  Number(kCfg.metaAtiv)  || 64,
+                projAltas: Math.round(kelvinAltasReal * du.fator),
+                teamMetaAtiv:  kMetaAtiv,
                 realAtiv:  kelvinAtivReal,
-                projAtiv:  kelvinAtivReal * du.fator,
-                teamMetaPort:  Number(kCfg.metaPort)  || 11,
-                realPort:  kelvinPortReal
+                projAtiv:  Math.round(kelvinAtivReal * du.fator),
+                teamMetaPort:  0, // Para Kelvin é residual dinâmico via Proj
+                realPort:  kelvinPortReal,
+                isKelvin: true
             };
         }
 
@@ -4179,21 +4174,16 @@
         const aptosPodium = agentsRk.filter(a => a.premio !== '-').slice(0, 3);
         bkoRk.sort((a, b) => b.efic - a.efic);
 
-        const regLeaderMetas = ensureLeaderMetas()[reg] || {};
-
         const leadersRk = Object.values(leadersMap).map(l => {
-            const autoMetaAltas = l.nome === 'KELVIN ANZORENA' ? l.teamMetaAltas : (l.teamMetaAltas * 0.85);
-            const autoMetaAtiv  = l.nome === 'KELVIN ANZORENA' ? l.teamMetaAtiv  : (l.teamMetaAtiv  * 0.85);
-            const cfgLdr = regLeaderMetas[l.nome];
-            const isFixed = cfgLdr && cfgLdr.mode === 'fixed';
-
-            const mAltas = isFixed ? (Number(cfgLdr.metaAltas) || 0) : autoMetaAltas;
-            const mAtiv  = isFixed ? (Number(cfgLdr.metaAtiv)  || 0) : autoMetaAtiv;
-            const mPort  = l.nome === 'KELVIN ANZORENA' ? l.teamMetaPort : (l.teamMetaPort * 0.85);
-            const areaLbl = (cfgLdr && cfgLdr.area) ? cfgLdr.area : Array.from(l.canais).join(' + ');
-
+            // Regra: se não for o Kelvin, a meta oficial do líder é 85% da soma direta da equipe
+            const mAltas = l.isKelvin ? l.teamMetaAltas : (l.teamMetaAltas * 0.85);
+            const mAtiv  = l.isKelvin ? l.teamMetaAtiv  : (l.teamMetaAtiv  * 0.85);
+            const mPort  = l.isKelvin ? 0 : (l.teamMetaPort * 0.85); // Portabilidade do Kelvin é dinâmica direto pela divisão Real Port / Real Ativ
+            
+            const areaLbl = Array.from(l.canais).join(' + ');
             const projAltas = l.projAltas;
             const projAtiv  = l.projAtiv;
+            
             const pAltas = mAltas > 0 ? (projAltas / mAltas) * 100 : 0;
             const pAtiv  = mAtiv  > 0 ? (projAtiv  / mAtiv)  * 100 : 0;
             const pPort  = l.realAtiv > 0 ? (l.realPort / l.realAtiv) * 100 : 0;
@@ -4202,8 +4192,6 @@
             return {
                 nome: l.nome,
                 area: areaLbl,
-                mode: isFixed ? 'fixed' : 'auto',
-                autoMetaAltas, autoMetaAtiv,
                 metaAltas: mAltas, realAltas: l.realAltas, projAltas, pAltas,
                 metaAtiv:  mAtiv,  realAtiv:  l.realAtiv,  projAtiv,  pAtiv,
                 metaPort:  mPort,  realPort:  l.realPort,  pPort,
@@ -4607,105 +4595,7 @@
         tblEl.innerHTML = hAa;
     }
 
-    let leaderMetasEditRegion = 'SP';
-
-    function setLeaderMetasEditRegion(reg) {
-        leaderMetasEditRegion = reg;
-        renderLeaderMetasEditor();
-    }
-
-    function renderLeaderMetasEditor() {
-        const ctrlEl = document.getElementById('p10-leadermetas-controls');
-        const tblEl = document.getElementById('p10-leadermetas-table');
-        if (!ctrlEl || !tblEl) return;
-
-        const reg = leaderMetasEditRegion || currentRegion || 'SP';
-        const allMetas = ensureLeaderMetas();
-        if (!allMetas[reg]) allMetas[reg] = {};
-
-        ctrlEl.innerHTML = `
-            <span style="font-size:0.65rem; color:var(--text-muted); font-weight:500;">Regional:</span>
-            <button class="pill-btn ${reg === 'SP' ? 'active' : ''}" onclick="setLeaderMetasEditRegion('SP')">REG. SP</button>
-            <button class="pill-btn ${reg === 'RJ' ? 'active' : ''}" onclick="setLeaderMetasEditRegion('RJ')">REG. RJ</button>
-        `;
-
-        const { leadersRk } = computeRankings(reg);
-        let h = `<table><thead><tr>
-            <th class="left">Líder</th><th>Área</th>
-            <th>Meta Altas (85%)</th><th>Meta Ativ. (85%)</th>
-            <th>Modo Cálculo</th><th>Real Alt / Ativ</th><th>Portab.</th><th>% Global Atual</th>
-        </tr></thead><tbody>`;
-
-        if (leadersRk.length === 0) {
-            h += `<tr><td colspan="8" style="padding:10px; color:var(--text-muted); font-style:italic;">Sem líderes cadastrados para REG. ${reg}.</td></tr>`;
-        } else {
-            leadersRk.forEach(l => {
-                const encName = encodeURIComponent(l.nome);
-                h += `<tr>
-                    <td class="left"><b>${l.nome}</b></td>
-                    <td>${l.area}</td>
-                    <td><input type="number" min="0" step="0.01" value="${Number(l.metaAltas).toFixed(2)}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateLeaderMeta('${reg}', decodeURIComponent('${encName}'), 'metaAltas', this.value)"></td>
-                    <td><input type="number" min="0" step="0.01" value="${Number(l.metaAtiv).toFixed(2)}" style="width:62px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateLeaderMeta('${reg}', decodeURIComponent('${encName}'), 'metaAtiv', this.value)"></td>
-                    <td><select style="width:98px; font-weight:600; border:1px solid #CBD5E1;" onchange="updateLeaderMetaMode('${reg}', decodeURIComponent('${encName}'), this.value)">
-                        <option value="fixed" ${l.mode === 'fixed' ? 'selected' : ''}>Meta Fixa</option>
-                        <option value="auto" ${l.mode === 'auto' ? 'selected' : ''}>Auto (85% Eq.)</option>
-                    </select></td>
-                    <td>${fmtInt(l.realAltas)} / ${fmtInt(l.realAtiv)}</td>
-                    <td>${fmtInt(l.realPort)} (${fmtPct(l.pPort, 0)})</td>
-                    <td><span class="badge ${l.eficGlobal >= 80 ? 'badge-good' : 'badge-bad'}">${fmtPct(l.eficGlobal, 2)}</span></td>
-                </tr>`;
-            });
-        }
-        h += `</tbody></table>`;
-        tblEl.innerHTML = h;
-    }
-
-    function updateLeaderMeta(reg, leaderName, field, rawVal) {
-        if (!checkAdminPass()) { renderLeaderMetasEditor(); return; }
-        const allMetas = ensureLeaderMetas();
-        if (!allMetas[reg]) allMetas[reg] = {};
-        const { leadersRk } = computeRankings(reg);
-        const cur = leadersRk.find(x => x.nome === leaderName) || { area: 'UND', metaAltas: 0, metaAtiv: 0 };
-        if (!allMetas[reg][leaderName]) {
-            allMetas[reg][leaderName] = {
-                area: cur.area,
-                metaAltas: cur.metaAltas,
-                metaAtiv: cur.metaAtiv,
-                mode: 'fixed'
-            };
-        }
-        const num = Math.max(0, parseFloat(String(rawVal).replace(',', '.')) || 0);
-        allMetas[reg][leaderName][field] = num;
-        allMetas[reg][leaderName].mode = 'fixed';
-        if (leaderName === 'KELVIN ANZORENA' && STATE.config.kelvinMeta && STATE.config.kelvinMeta[reg]) {
-            if (field === 'metaAltas') STATE.config.kelvinMeta[reg].metaAltas = num;
-            if (field === 'metaAtiv') STATE.config.kelvinMeta[reg].metaAtiv = num;
-        }
-        stampLastUpdate();
-        renderAll();
-        pushCloudState(false);
-        const fb = document.getElementById('import-feedback');
-        if (fb) fb.textContent = `Meta de liderança (${leaderName}) atualizada e sincronizada na Nuvem!`;
-    }
-
-    function updateLeaderMetaMode(reg, leaderName, mode) {
-        if (!checkAdminPass()) { renderLeaderMetasEditor(); return; }
-        const allMetas = ensureLeaderMetas();
-        if (!allMetas[reg]) allMetas[reg] = {};
-        const { leadersRk } = computeRankings(reg);
-        const cur = leadersRk.find(x => x.nome === leaderName) || { area: 'UND', autoMetaAltas: 0, autoMetaAtiv: 0 };
-        allMetas[reg][leaderName] = {
-            area: cur.area,
-            metaAltas: cur.autoMetaAltas,
-            metaAtiv: cur.autoMetaAtiv,
-            mode: mode
-        };
-        stampLastUpdate();
-        renderAll();
-        pushCloudState(false);
-        const fb = document.getElementById('import-feedback');
-        if (fb) fb.textContent = `Modo de meta (${leaderName}) alterado para ${mode === 'fixed' ? 'Meta Fixa' : 'Auto 85% Equipe'} e sincronizado!`;
-    }
+    
 
     function renderAdminAndSim() {
         const { combinedSimList } = computeRankings();
@@ -4761,7 +4651,6 @@
         renderBlockedEmailsList();
 
         renderProdRulesEditor();
-        renderLeaderMetasEditor();
         renderAgentsCrudTable();
         renderAaCrudTable();
     }
@@ -5347,18 +5236,15 @@
 
         let needsCloudMigrationPush = false;
         const preservedProdRules = STATE.config.prodRules;
-        const preservedLeaderMetas = STATE.config.leaderMetas;
+        
         Object.assign(STATE.config, remote.config);
         if (!STATE.config.prodRules && preservedProdRules) {
             STATE.config.prodRules = preservedProdRules;
             needsCloudMigrationPush = true;
         }
-        if (!STATE.config.leaderMetas && preservedLeaderMetas) {
-            STATE.config.leaderMetas = preservedLeaderMetas;
-            needsCloudMigrationPush = true;
-        }
+        
         ensureProdRules();
-        ensureLeaderMetas();
+        
         if (remote.historico) {
             const preservedSP = {
                 metasVendasHist: STATE.historico.SP.metasVendasHist,
@@ -5771,7 +5657,7 @@
         renderAdminAndSim();
     }
     
-    async function bootDashboard() {
+    async async function bootDashboard() {
         if (dashboardBooted) return;
         // Garantir abertura sempre na aba Consolidado (#p1) e com Atualizar Dados (#p10) bloqueado
         adminUnlocked = false;
@@ -5779,9 +5665,8 @@
         document.getElementById('p10-unlocked').style.display = 'none';
         openPanel(1);
 
-        // Se for HTML Blindado (Só Nuvem), busca os dados da nuvem antes da primeira renderização
-        const isShieldedEmpty = (STATE.config.lastUpdate === '00/00/0000 00:00:00' || !STATE.bl || STATE.bl.length === 0);
-        if (STATE.config.cloudSyncUrl && isShieldedEmpty) {
+        // Bloqueia a renderização inicial se houver URL da nuvem, buscando dados frescos primeiro para evitar piscar dados antigos
+        if (STATE.config.cloudSyncUrl) {
             await checkLiveUpdates();
         }
 
@@ -5790,9 +5675,6 @@
 
         // Verificação automática em tempo real para todos os usuários conectados no link
         setInterval(checkLiveUpdates, (STATE.config.cloudSyncUrl ? 6000 : 20000));
-        if (!isShieldedEmpty) {
-            setTimeout(checkLiveUpdates, 1500);
-        }
     }
 
     async function verifyActiveFirebaseUser(user, freshSignIn = false) {
