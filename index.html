@@ -1143,7 +1143,7 @@
     <!-- ABA 6: RK AGENTES -->
     <section class="panel" id="p6">
         <div class="rules-strip">
-            <span class="rule-chip"><b>Matriz Eficiência (% Global):</b> 50% Altas | 20% Ativações | 30% Portabilidade</span>
+            <span class="rule-chip"><b>Matriz Eficiência (% Global):</b> 50% Altas (% Tend.) | 20% Ativações (% Tend.) | 30% Portabilidade (Portab. Real / Ativ. Real)</span>
             <span class="rule-chip"><b>Gatilho 1:</b> Mín. 80% Eficiência (% Global)</span>
             <span class="rule-chip"><b>Gatilho 2:</b> Mín. 100% Altas</span>
             <span class="rule-chip"><b>Gatilho 3 (Portab. Dobro = 60%):</b> Altas &ge; 80% e Ativações &ge; 70%</span>
@@ -3928,20 +3928,19 @@
     }
 
     function calcEficienciaGlobal(pAltas, pAtiv, pPort) {
-        // Correção de precisão idêntica ao Excel: usa-se arredondamento para 2 casas nas métricas antes da avaliação lógica para evitar inconsistência decimal.
-        const rAltas = Math.round(Number(pAltas) * 100) / 100;
-        const rAtiv = Math.round(Number(pAtiv) * 100) / 100;
-        const rPort = Math.round(Number(pPort) * 100) / 100;
+        const aPct = isFinite(Number(pAltas)) ? Number(pAltas) : 0;
+        const atPct = isFinite(Number(pAtiv)) ? Number(pAtiv) : 0;
+        const prPct = isFinite(Number(pPort)) ? Number(pPort) : 0;
 
-        const portDobro = (rAltas >= 80 && rAtiv >= 70); 
+        const portDobro = (aPct >= 80 && atPct >= 70);
         const pesoPort = portDobro ? 0.60 : 0.30;
         let acel = 0;
-        if (rAltas >= 115) acel = 8;
-        else if (rAltas >= 110) acel = 5;
-        else if (rAltas >= 105) acel = 3;
-        
-        // A fórmula exata conforme BD_Geral
-        const eficGlobal = (rAltas * 0.50) + (rAtiv * 0.20) + (rPort * pesoPort) + acel;
+        if (aPct >= 115) acel = 8;
+        else if (aPct >= 110) acel = 5;
+        else if (aPct >= 105) acel = 3;
+
+        // Fórmula exata da planilha: =SEERRO(SE(E(I>=80%; N>=70%); (I*50%)+(N*20%)+(P*60%); (I*50%)+(N*20%)+(P*30%)) + SE(I>=115%;8%;SE(I>=110%;5%;SE(I>=105%;3%;0))); "")
+        const eficGlobal = (aPct * 0.50) + (atPct * 0.20) + (prPct * pesoPort) + acel;
         return { eficGlobal, portDobro, pesoPort, acel };
     }
 
@@ -4054,12 +4053,12 @@
                 const metaAtiv  = Number(a[10]) || 0;
                 const metaPort  = Number(a[11]) || 0;
 
-                const projAltas = Math.round(prod.a * du.fator);
-                const projAtiv  = Math.round(ativReal * du.fator);
+                const projAltas = prod.a * du.fator;
+                const projAtiv  = ativReal * du.fator;
 
                 const pAltas = metaAltas > 0 ? (projAltas / metaAltas) * 100 : 0;
                 const pAtiv  = metaAtiv  > 0 ? (projAtiv  / metaAtiv)  * 100 : 0;
-                const pPort  = metaPort  > 0 ? (portReal  / metaPort)  * 100 : 0;
+                const pPort  = ativReal  > 0 ? (portReal  / ativReal)  * 100 : 0;
 
                 const { eficGlobal, portDobro, pesoPort, acel } = calcEficienciaGlobal(pAltas, pAtiv, pPort);
 
@@ -4128,16 +4127,15 @@
         bkoRk.sort((a, b) => b.efic - a.efic);
 
         const leadersRk = Object.values(leadersMap).map(l => {
-            // A meta da liderança (exceto Kelvin) é 85% da soma da equipe, e no painel em Excel essa meta é arredondada (Math.round) ANTES de calcular o atingimento.
-            const mAltas = l.nome === 'KELVIN ANZORENA' ? l.metaAltas : Math.round(l.metaAltas * 0.85);
-            const mAtiv  = l.nome === 'KELVIN ANZORENA' ? l.metaAtiv : Math.round(l.metaAtiv * 0.85);
-            const mPort  = l.nome === 'KELVIN ANZORENA' ? l.metaPort : Math.round(l.metaPort * 0.85);
+            const mAltas = l.nome === 'KELVIN ANZORENA' ? l.metaAltas : (l.metaAltas * 0.85);
+            const mAtiv  = l.nome === 'KELVIN ANZORENA' ? l.metaAtiv  : (l.metaAtiv  * 0.85);
+            const mPort  = l.nome === 'KELVIN ANZORENA' ? l.metaPort  : (l.metaPort  * 0.85);
             
-            const projAltas = Math.round(l.realAltas * du.fator);
-            const projAtiv  = Math.round(l.realAtiv  * du.fator);
+            const projAltas = l.realAltas * du.fator;
+            const projAtiv  = l.realAtiv  * du.fator;
             const pAltas = mAltas > 0 ? (projAltas / mAltas) * 100 : 0;
             const pAtiv  = mAtiv  > 0 ? (projAtiv  / mAtiv)  * 100 : 0;
-            const pPort  = mPort  > 0 ? (l.realPort / mPort) * 100 : 0;
+            const pPort  = l.realAtiv > 0 ? (l.realPort / l.realAtiv) * 100 : 0;
             
             const { eficGlobal, portDobro, pesoPort, acel } = calcEficienciaGlobal(pAltas, pAtiv, pPort);
             return {
@@ -4627,15 +4625,15 @@
         const { du } = getRegionMetrics();
 
         const simRealAltas = item.realAltas + addAltas;
-        const simTendAltas = Math.round(simRealAltas * du.fator);
+        const simTendAltas = simRealAltas * du.fator;
         const simPctAltas  = item.metaAltas > 0 ? (simTendAltas / item.metaAltas) * 100 : 0;
 
         const simRealAtiv  = item.realAtiv + addAtiv;
-        const simTendAtiv  = Math.round(simRealAtiv * du.fator);
+        const simTendAtiv  = simRealAtiv * du.fator;
         const simPctAtiv   = item.metaAtiv > 0 ? (simTendAtiv / item.metaAtiv) * 100 : 0;
 
         const simRealPort  = item.realPort + addPort;
-        const simPctPort   = item.metaPort > 0 ? (simRealPort / item.metaPort) * 100 : 0;
+        const simPctPort   = simRealAtiv > 0 ? (simRealPort / simRealAtiv) * 100 : 0;
 
         const simCalc = calcEficienciaGlobal(simPctAltas, simPctAtiv, simPctPort);
 
@@ -4676,11 +4674,11 @@
                 </tr>
                 <tr>
                     <td class="left grp-sep"><b>Portabilidade (Móvel)</b></td>
-                    <td>${fmtInt(item.metaPort)}</td>
+                    <td title="Base: Ativações Realizadas">${fmtInt(simRealAtiv)} Ativ.</td>
                     <td>${fmtInt(item.realPort)}</td>
                     <td style="color:var(--evo-blue);font-weight:700;background:#F8FAFC;">+${addPort}</td>
                     <td><b>${fmtInt(simRealPort)}</b></td>
-                    <td class="grp-sep">- (Direto s/ DU)</td>
+                    <td class="grp-sep">- (Portab / Ativ Real)</td>
                     <td class="grp-sep"><span class="badge badge-cyan">${fmtPct(simPctPort, 1)}</span></td>
                     <td><b>${simCalc.portDobro ? '60% (Dobro Ativado!)' : '30% (Padrão)'}</b></td>
                 </tr>
