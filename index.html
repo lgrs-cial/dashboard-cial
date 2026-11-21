@@ -757,14 +757,13 @@
             vertical-align: middle !important;
         }
         #p10-prodrules-table td input[type="number"] {
-            width: 68px !important;
-            height: 20px !important;
-            padding: 1px 4px !important;
-            font-size: 0.73rem !important;
+            width: 42px !important;
+            padding: 2px 2px !important;
+            font-size: 0.66rem !important;
             font-weight: 700 !important;
             text-align: center !important;
             background: #FFFBEB !important;
-            border: 1.5px solid #C59B27 !important;
+            border: 1px solid #C59B27 !important;
             border-radius: 4px !important;
             color: #0F172A !important;
             line-height: 1 !important;
@@ -6280,8 +6279,8 @@
                 html += `
                 <tr>
                     <td class="left"><b>${lider}</b></td>
-                    <td><input type="number" value="${c.vagasAR || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasAR', this.value)" style="width:48px; height:20px; padding:1px 4px; font-size:0.73rem; font-weight:700; text-align:center; background:#FFFBEB; border:1.5px solid #C59B27; border-radius:4px;"></td>
-                    <td><input type="number" value="${c.vagasPaP || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasPaP', this.value)" style="width:48px; height:20px; padding:1px 4px; font-size:0.73rem; font-weight:700; text-align:center; background:#FFFBEB; border:1.5px solid #C59B27; border-radius:4px;"></td>
+                    <td><input type="number" value="${c.vagasAR || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasAR', this.value)" style="width:42px; padding:2px 2px; font-size:0.66rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
+                    <td><input type="number" value="${c.vagasPaP || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasPaP', this.value)" style="width:42px; padding:2px 2px; font-size:0.66rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
                     <td class="grp-sep"><b>${total}</b></td>
                 </tr>`;
             });
@@ -6299,8 +6298,10 @@
         STATE.config.leaderCapacity[currentCapacityRegion][lider][field] = val;
         
         renderCapacityTable();
+        renderRankings();
+        renderAdminAndSim();
         
-        // Disparar sync pro cloud e recálculo
+        // Disparar sync pro cloud
         if(typeof pushCloudState === 'function') pushCloudState(false);
     }
     
