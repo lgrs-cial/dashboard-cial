@@ -758,6 +758,138 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+    
+        /* ABA 1: MATRIZ EXECUTIVA COM PRESENCIAL VS REMOTO & PESOS */
+        #p1 { gap: 0.58rem; }
+        #p1 .kpi-card { padding: 0.45rem 0.78rem; }
+        #p1 .kpi-value { font-size: 1.30rem; }
+        #p1 .card-box { padding: 0.58rem 0.80rem; gap: 0.45rem; }
+        #p1 .box-title { font-size: 0.84rem; }
+        #p1 .charts-duo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.70rem;
+        }
+        @media (max-width: 960px) { #p1 .charts-duo-grid { grid-template-columns: 1fr; } }
+
+        table.tbl-exec-matrix {
+            font-size: 0.69rem;
+        }
+        table.tbl-exec-matrix th {
+            font-size: 0.65rem;
+            padding: 0.28rem 0.30rem;
+        }
+        table.tbl-exec-matrix td {
+            padding: 0.24rem 0.30rem;
+        }
+        table.tbl-exec-matrix tr.row-macro td {
+            background: #E8F1FC !important;
+            color: var(--evo-navy);
+            font-weight: 600;
+            padding-top: 0.22rem;
+            padding-bottom: 0.22rem;
+            line-height: 1.12;
+        }
+        table.tbl-exec-matrix tr.row-macro-last td {
+            border-bottom: 2px solid var(--border-grp) !important;
+        }
+        table.tbl-exec-matrix .macro-vol {
+            font-weight: 700;
+            font-size: 0.70rem;
+            color: var(--text-main);
+        }
+        table.tbl-exec-matrix .macro-share {
+            font-size: 0.59rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* ABA 2: DIÁRIO COMPACTO PARA EXIBIR AS DUAS TABELAS NA MESMA VISÃO */
+        #p2 { gap: 0.42rem; }
+        #p2 .card-box { padding: 0.42rem 0.65rem; gap: 0.28rem; }
+        #p2 .box-title { font-size: 0.78rem; }
+        #p2 table.tbl-diario { font-size: 0.64rem; }
+        #p2 table.tbl-diario th {
+            padding: 0.16rem 0.12rem;
+            font-size: 0.59rem;
+            line-height: 1.02;
+        }
+        #p2 table.tbl-diario td {
+            padding: 0.15rem 0.12rem;
+            line-height: 1.12;
+        }
+
+        /* ABA 5: PAINEL MÓVEL COMPACTO (CARDS MENORES, MENOS ESPAÇOS VAZIOS E TÍTULOS MAIS BAIXOS) */
+        #p5 { gap: 0.42rem; }
+        #p5 .kpi-grid { gap: 0.50rem; }
+        #p5 .kpi-card {
+            padding: 0.34rem 0.65rem;
+            gap: 1px;
+            border-radius: 6px;
+        }
+        #p5 .kpi-label { font-size: 0.62rem; }
+        #p5 .kpi-value { font-size: 1.12rem; margin-top: 1px; }
+        #p5 .kpi-value span { font-size: 0.80rem !important; }
+        #p5 .kpi-sub { font-size: 0.60rem; margin-top: 0; }
+        #p5 .kpi-badges-stack { gap: 2px; width: 92px; }
+        #p5 .kpi-badges-stack .badge { font-size: 0.59rem; padding: 1px 4px; }
+        #p5 .card-box { padding: 0.45rem 0.65rem; gap: 0.35rem; }
+        #p5 .box-title { font-size: 0.79rem; }
+        #p5 .filter-bar { gap: 4px; }
+        #p5 .pill-btn, #p5 input { padding: 3px 8px; font-size: 0.69rem; }
+        #p5 table.tbl-unidades thead tr:nth-child(1) th {
+            height: 19px;
+            line-height: 19px;
+            font-size: 0.66rem !important;
+        }
+        #p5 table.tbl-unidades thead tr:nth-child(2) th {
+            top: 19px;
+            padding: 0.12rem 0.14rem;
+            font-size: 0.58rem;
+            line-height: 1.02;
+        }
+        #p5 .units-scroll-wrap {
+            max-height: calc(100vh - 210px);
+        }
+
+        /* ABA 6, 7, 8: RANKINGS COM CABEÇALHO CONGELADO, FONTE E ALTURA DE LINHA COMPACTAS */
+        #p6, #p7, #p8 { gap: 0.48rem; }
+        #p6 .card-box, #p7 .card-box, #p8 .card-box { padding: 0.52rem 0.72rem; gap: 0.40rem; }
+        #p6 .box-title, #p7 .box-title, #p8 .box-title { font-size: 0.82rem; }
+        .rk-scroll-wrap {
+            width: 100%;
+            max-height: calc(100vh - 235px);
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid var(--border-col);
+            border-radius: 5px;
+            background: var(--bg-surface);
+        }
+        table.tbl-rk {
+            font-size: 0.68rem;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        table.tbl-rk th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #DCE7F5;
+            font-size: 0.65rem;
+            padding: 0.28rem 0.40rem;
+            border-bottom: 1.5px solid var(--border-grp);
+            border-right: 1px solid var(--border-col);
+            box-shadow: 0 2px 3px rgba(15, 23, 42, 0.07);
+        }
+        table.tbl-rk td {
+            padding: 0.23rem 0.40rem;
+            border-bottom: 1px solid var(--border-col);
+            border-right: 1px solid var(--border-col);
+        }
+        table.tbl-rk th:last-child, table.tbl-rk td:last-child { border-right: none; }
+        table.tbl-rk .badge { font-size: 0.64rem !important; padding: 1px 5px; }
+
     </style>
 </head>
 <body>
@@ -853,25 +985,23 @@
     <!-- ABA 1: CONSOLIDADO -->
     <section class="panel active" id="p1">
         <div class="kpi-grid" id="p1-kpis"></div>
-        <div class="grid-2">
+        <div class="charts-duo-grid">
             <div class="card-box">
                 <div class="box-header">
-                    <div class="box-title"><i class="fa-solid fa-chart-column"></i> Evolução Histórica & Projeção</div>
-                    <div class="filter-bar">
-                        <button class="pill-btn active" id="btn-hist-altas" onclick="toggleHistMetric('altas')">Altas</button>
-                        <button class="pill-btn" id="btn-hist-vendas" onclick="toggleHistMetric('vendas')">Vendas</button>
-                    </div>
+                    <div class="box-title"><i class="fa-solid fa-chart-column"></i> Evolução Histórica & Projeção — Vendas</div>
                 </div>
-                <div style="height: 255px; position: relative;"><canvas id="chartConsolidado"></canvas></div>
+                <div style="height: 215px; position: relative;"><canvas id="chartConsolidadoVendas"></canvas></div>
             </div>
             <div class="card-box">
-                <div class="box-header"><div class="box-title"><i class="fa-solid fa-code-branch"></i> Presencial vs. Remoto (Mês Vigente)</div></div>
-                <div class="table-wrap" id="p1-mix-table"></div>
+                <div class="box-header">
+                    <div class="box-title"><i class="fa-solid fa-chart-column"></i> Evolução Histórica & Projeção — Altas</div>
+                </div>
+                <div style="height: 215px; position: relative;"><canvas id="chartConsolidadoAltas"></canvas></div>
             </div>
         </div>
         <div class="card-box">
             <div class="box-header">
-                <div class="box-title"><i class="fa-solid fa-table"></i> Matriz Executiva por Canal (Histórico, Meta, FC, Real, Projeção, % FC, M-1 e Eficiência)</div>
+                <div class="box-title"><i class="fa-solid fa-table"></i> Matriz Executiva por Canal & Presencial vs. Remoto (Histórico, Pesos, Meta, FC, Real, Projeção & Eficiência)</div>
                 <div class="filter-bar">
                     <button class="pill-btn active" id="btn-tbl-altas" onclick="toggleTableMetric('altas')">Visão Altas</button>
                     <button class="pill-btn" id="btn-tbl-vendas" onclick="toggleTableMetric('vendas')">Visão Vendas</button>
@@ -962,7 +1092,7 @@
 
         <div class="card-box">
             <div class="box-header"><div class="box-title"><i class="fa-solid fa-ranking-star"></i> Ranking Completo de Agentes (Lojas & PaP) — Premiação: R$ 700 / R$ 600 / R$ 500 / R$ 300 / R$ 100</div></div>
-            <div class="table-wrap" id="p6-agents-rk"></div>
+            <div class="rk-scroll-wrap" id="p6-agents-rk"></div>
         </div>
     </section>
 
@@ -983,7 +1113,7 @@
 
         <div class="card-box">
             <div class="box-header"><div class="box-title"><i class="fa-solid fa-crown"></i> Ranking Oficial de Líderes</div></div>
-            <div class="table-wrap" id="p7-leaders-rk"></div>
+            <div class="rk-scroll-wrap" id="p7-leaders-rk"></div>
         </div>
     </section>
 
@@ -991,7 +1121,7 @@
     <section class="panel" id="p8">
         <div class="card-box">
             <div class="box-header"><div class="box-title"><i class="fa-solid fa-headset"></i> Ranking Eficiência Operacional Bko (Instalações / Propostas)</div></div>
-            <div class="table-wrap" id="p8-bko-rk"></div>
+            <div class="rk-scroll-wrap" id="p8-bko-rk"></div>
         </div>
     </section>
 
@@ -1433,7 +1563,7 @@
     const metaTickPlugin = {
         id: 'metaTickPlugin',
         afterDatasetsDraw(chart) {
-            if (chart.canvas.id !== 'chartConsolidado') return;
+            if (!chart.canvas.id.startsWith('chartConsolidado')) return;
             const metaDatasetIndex = chart.data.datasets.findIndex(d => d.isMetaTick);
             if (metaDatasetIndex === -1) return;
             const metaMeta = chart.getDatasetMeta(metaDatasetIndex);
@@ -1478,10 +1608,10 @@
     const INITIAL_SELLER_HIST = JSON.parse(JSON.stringify(STATE.sellerHist || {}));
     const INITIAL_MOVEL_SELLER_HIST = JSON.parse(JSON.stringify(STATE.movelSellerHist || {}));
     let currentRegion = 'SP';
-    let histMetric = 'altas';
     let tableMetric = 'altas';
     let channelFilter = 'Lojas';
-    let chartConsolidadoObj = null;
+    let chartConsolidadoVendasObj = null;
+    let chartConsolidadoAltasObj = null;
     let adminUnlocked = false;
 
     const PREMIOS_AGENTES = ['R$ 700,00', 'R$ 600,00', 'R$ 500,00', 'R$ 300,00', 'R$ 100,00'];
@@ -1648,138 +1778,40 @@
         return { du, blReg, mvReg, channels, realVendas, realAltas, dailyVendas, dailyAltas };
     }
 
-    function renderConsolidado() {
-        const { du, channels, realVendas, realAltas } = getRegionMetrics();
-        const hist = STATE.historico[currentRegion];
-        document.getElementById('du-indicator').textContent = `DU: ${du.duCorridos} / ${du.duTotal} (Fator ${du.fator.toFixed(2).replace('.', ',')}x)`;
-        document.getElementById('last-update-badge').innerHTML = `<i class="fa-solid fa-square-check"></i> <span><span class="live-dot" title="Sincronização automática ativa"></span>Última Atualização<br>${STATE.config.lastUpdate || 'N/A'}</span>`;
-
+    function buildConsolidadoChart(canvasId, prevChartObj, metricKey, du, channels, realVendas, realAltas, hist) {
         const totV = channels.reduce((s, c) => s + realVendas[c], 0);
         const totA = channels.reduce((s, c) => s + realAltas[c], 0);
-        const pv = totV * du.fator, pa = totA * du.fator;
-        const mV = channels.reduce((s, c) => s + (hist.metasNov.vendas[c] || 0), 0);
+        const pv = totV * du.fator;
+        const pa = totA * du.fator;
         const fV = channels.reduce((s, c) => s + (hist.metasNov.fcVendas[c] || 0), 0);
-        const mA = channels.reduce((s, c) => s + (hist.metasNov.altas[c] || 0), 0);
         const fA = channels.reduce((s, c) => s + (hist.metasNov.fcAltas[c] || 0), 0);
 
-        const m1Idx = Math.max(0, (hist.meses || []).length - 1);
-        const mesM1Label = (hist.meses && hist.meses[m1Idx]) || 'M-1';
-        const m1ValV = channels.reduce((s, c) => s + ((hist.vendas[c] && hist.vendas[c][m1Idx]) || 0), 0);
-        const m1ValA = channels.reduce((s, c) => s + ((hist.altas[c] && hist.altas[c][m1Idx]) || 0), 0);
-        const m1PctV = m1ValV > 0 ? ((pv / m1ValV) - 1) * 100 : 0;
-        const m1PctA = m1ValA > 0 ? ((pa / m1ValA) - 1) * 100 : 0;
-        const m1Efic = m1ValV > 0 ? (m1ValA / m1ValV) * 100 : 0;
-
-        const pctA = fA ? (pa / fA) * 100 : 0;
-        const pctV = fV ? (pv / fV) * 100 : 0;
-        const efic = totV ? (totA / totV) * 100 : 0;
-        const m1EficDiff = efic - m1Efic;
-
-        const projVColor = pv >= fV ? 'var(--green)' : 'var(--red)';
-        const projAColor = pa >= fA ? 'var(--green)' : 'var(--red)';
-
-        document.getElementById('p1-kpis').innerHTML = `
-            <div class="kpi-card cyan">
-                <div class="kpi-top-row">
-                    <div class="kpi-main-col">
-                        <div class="kpi-label"><span>Vendas (Real / Proj.)</span></div>
-                        <div class="kpi-value">${fmtInt(totV)} <span style="font-size:0.95rem; font-weight:700; color:${projVColor};">/ ${fmtInt(pv)}</span></div>
-                    </div>
-                    <div class="kpi-badges-stack">
-                        <span class="badge ${pctV >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctV)} FC</span>
-                        <span class="badge ${m1PctV >= 0 ? 'badge-good' : 'badge-bad'}" title="Projeção vs M-1 (${mesM1Label}: ${fmtInt(m1ValV)})">M-1: ${m1PctV >= 0 ? '+' : ''}${fmtPct(m1PctV)}</span>
-                    </div>
-                </div>
-                <div class="kpi-sub">Meta: ${fmtInt(mV)} | FC: ${fmtInt(fV)} | M-1 (${mesM1Label}): <b>${fmtInt(m1ValV)}</b></div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-top-row">
-                    <div class="kpi-main-col">
-                        <div class="kpi-label"><span>Altas (Real / Proj.)</span></div>
-                        <div class="kpi-value">${fmtInt(totA)} <span style="font-size:0.95rem; font-weight:700; color:${projAColor};">/ ${fmtInt(pa)}</span></div>
-                    </div>
-                    <div class="kpi-badges-stack">
-                        <span class="badge ${pctA >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctA)} FC</span>
-                        <span class="badge ${m1PctA >= 0 ? 'badge-good' : 'badge-bad'}" title="Projeção vs M-1 (${mesM1Label}: ${fmtInt(m1ValA)})">M-1: ${m1PctA >= 0 ? '+' : ''}${fmtPct(m1PctA)}</span>
-                    </div>
-                </div>
-                <div class="kpi-sub">Meta: ${fmtInt(mA)} | FC: ${fmtInt(fA)} | M-1 (${mesM1Label}): <b>${fmtInt(m1ValA)}</b></div>
-            </div>
-            <div class="kpi-card green">
-                <div class="kpi-top-row">
-                    <div class="kpi-main-col">
-                        <div class="kpi-label"><span>Eficiência (Altas / Vendas)</span></div>
-                        <div class="kpi-value" style="color:${efic >= 90 ? 'var(--green)' : (efic >= 85 ? '#B45309' : 'var(--red)')}">${fmtPct(efic)}</div>
-                    </div>
-                    <div class="kpi-badges-stack" style="width:116px;">
-                        <span class="badge ${getEficBadgeClass(m1Efic)}" title="Eficiência M-1 (${mesM1Label}: ${fmtPct(m1Efic)})">M-1 (${mesM1Label}): ${fmtPct(m1Efic)}</span>
-                    </div>
-                </div>
-                <div class="kpi-sub">Régua: &lt;85% Verm. | 85-90% Amar. | &ge;90% Verde</div>
-            </div>
-        `;
-
-        const presA = realAltas['Lojas'] + realAltas['PaP'] + realAltas['AA'];
-        const remA  = realAltas['Inside Sales'] + realAltas['Digital'];
-        const presV = realVendas['Lojas'] + realVendas['PaP'] + realVendas['AA'];
-        const remV  = realVendas['Inside Sales'] + realVendas['Digital'];
-
-        document.getElementById('p1-mix-table').innerHTML = `
-            <table><thead><tr>
-                <th class="left grp-sep">Grupo Canal</th>
-                <th>Vendas</th><th class="grp-sep">% Part.</th>
-                <th>Altas</th><th>Proj. Altas</th><th class="grp-sep">% Part.</th>
-                <th>Efic.</th>
-            </tr></thead>
-            <tbody>
-                <tr>
-                    <td class="left grp-sep"><b>Presencial</b> (Lojas+PaP+AA)</td>
-                    <td>${fmtInt(presV)}</td><td class="grp-sep">${fmtPct(totV ? presV/totV*100 : 0)}</td>
-                    <td><b>${fmtInt(presA)}</b></td><td>${fmtInt(presA*du.fator)}</td><td class="grp-sep">${fmtPct(totA ? presA/totA*100 : 0)}</td>
-                    <td class="${getEficClass(presV ? (presA/presV)*100 : 0)}">${fmtPct(presV ? presA/presV*100 : 0)}</td>
-                </tr>
-                <tr>
-                    <td class="left grp-sep"><b>Remoto</b> (IS+Digital)</td>
-                    <td>${fmtInt(remV)}</td><td class="grp-sep">${fmtPct(totV ? remV/totV*100 : 0)}</td>
-                    <td><b>${fmtInt(remA)}</b></td><td>${fmtInt(remA*du.fator)}</td><td class="grp-sep">${fmtPct(totA ? remA/totA*100 : 0)}</td>
-                    <td class="${getEficClass(remV ? (remA/remV)*100 : 0)}">${fmtPct(remV ? remA/remV*100 : 0)}</td>
-                </tr>
-                <tr class="row-total">
-                    <td class="left grp-sep">TOTAL REG. ${currentRegion}</td>
-                    <td>${fmtInt(totV)}</td><td class="grp-sep">100,0%</td>
-                    <td>${fmtInt(totA)}</td><td>${fmtInt(pa)}</td><td class="grp-sep">100,0%</td>
-                    <td class="${getEficClass(efic)}">${fmtPct(efic)}</td>
-                </tr>
-            </tbody></table>`;
-
-        // Gráfico Evolução Histórica & Projeção: Barras em Azul Evo Degradê + Traço Horizontal de Meta por Coluna
-        const mSeries = hist[histMetric];
+        const mSeries = hist[metricKey];
         const labelsHist = [...hist.meses, 'Mês Atual'];
         const totalsHist = hist.meses.map((_, i) => channels.reduce((s, c) => s + mSeries[c][i], 0));
-        const projAtual = Math.round(histMetric === 'altas' ? pa : pv);
-        const realAtual = Math.round(histMetric === 'altas' ? totA : totV);
+        const projAtual = Math.round(metricKey === 'altas' ? pa : pv);
+        const realAtual = Math.round(metricKey === 'altas' ? totA : totV);
         const deltaProj = Math.max(0, projAtual - realAtual);
 
         const metasHist = hist.meses.map((_, i) => Math.round(totalsHist[i] * 0.96));
-        const fcAtual = Math.round(histMetric === 'altas' ? fA : fV);
+        const fcAtual = Math.round(metricKey === 'altas' ? fA : fV);
         metasHist.push(fcAtual);
         const projChartColor = projAtual >= fcAtual ? '#059669' : '#DC2626';
 
-        const canvasEl = document.getElementById('chartConsolidado');
+        const canvasEl = document.getElementById(canvasId);
+        if (!canvasEl) return null;
         const ctx2d = canvasEl.getContext('2d');
 
-        // Degradê Azul Evo para meses históricos
-        const gradHist = ctx2d.createLinearGradient(0, 0, 0, 240);
+        const gradHist = ctx2d.createLinearGradient(0, 0, 0, 205);
         gradHist.addColorStop(0, '#2B7AE4');
         gradHist.addColorStop(1, '#0F3D82');
 
-        // Degradê Azul Evo intenso para Mês Atual
-        const gradAtual = ctx2d.createLinearGradient(0, 0, 0, 240);
+        const gradAtual = ctx2d.createLinearGradient(0, 0, 0, 205);
         gradAtual.addColorStop(0, '#0052CC');
         gradAtual.addColorStop(1, '#001B5E');
 
-        if (chartConsolidadoObj) chartConsolidadoObj.destroy();
-        chartConsolidadoObj = new Chart(canvasEl, {
+        if (prevChartObj) prevChartObj.destroy();
+        return new Chart(canvasEl, {
             data: {
                 labels: labelsHist,
                 datasets: [
@@ -1795,7 +1827,7 @@
                             anchor: 'center',
                             align: 'center',
                             color: '#FFFFFF',
-                            font: { family: 'Inter', size: 9, weight: '600' },
+                            font: { family: 'Inter', size: 8.5, weight: '600' },
                             formatter: v => v > 0 ? v.toLocaleString('pt-BR') : ''
                         }
                     },
@@ -1814,17 +1846,17 @@
                             align: 'top',
                             offset: (ctx) => {
                                 const yScale = ctx.chart.scales.y;
-                                if (!yScale) return 8;
+                                if (!yScale) return 7;
                                 const yBar = yScale.getPixelForValue(projAtual);
                                 const yMeta = yScale.getPixelForValue(fcAtual);
                                 const extra = Math.max(0, yBar - yMeta);
-                                return extra + 8;
+                                return extra + 7;
                             },
                             color: projChartColor,
                             backgroundColor: 'rgba(255, 255, 255, 0.92)',
                             borderRadius: 3,
-                            padding: { top: 1, bottom: 1, left: 4, right: 4 },
-                            font: { family: 'Inter', size: 9.5, weight: '700' },
+                            padding: { top: 1, bottom: 1, left: 3, right: 3 },
+                            font: { family: 'Inter', size: 9, weight: '700' },
                             formatter: () => 'Proj: ' + projAtual.toLocaleString('pt-BR')
                         }
                     },
@@ -1853,7 +1885,7 @@
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                             borderRadius: 3,
                             padding: { top: 1, bottom: 1, left: 3, right: 3 },
-                            font: { family: 'Inter', size: 8.5, weight: '700' },
+                            font: { family: 'Inter', size: 8, weight: '700' },
                             formatter: (v, ctx) => (ctx.dataIndex === labelsHist.length - 1 ? 'FC: ' : '') + v.toLocaleString('pt-BR')
                         }
                     }
@@ -1862,26 +1894,158 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { top: 28, right: 10 } },
+                layout: { padding: { top: 26, right: 8 } },
                 plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 11, font: { family: 'Inter', size: 10.5, weight: '500' } } },
+                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { family: 'Inter', size: 10, weight: '500' } } },
                     tooltip: { mode: 'index', intersect: false }
                 },
                 scales: {
-                    x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Inter', size: 10, weight: '600' }, color: '#475569' } },
+                    x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Inter', size: 9.5, weight: '600' }, color: '#475569' } },
                     y: { stacked: true, display: false, min: 0, suggestedMax: Math.max(...totalsHist, projAtual, ...metasHist) * 1.25 }
                 }
             }
         });
+    }
 
-        const tS = hist[tableMetric], tR = tableMetric === 'altas' ? realAltas : realVendas, tM = tableMetric === 'altas' ? hist.metasNov.altas : hist.metasNov.vendas, tF = tableMetric === 'altas' ? hist.metasNov.fcAltas : hist.metasNov.fcVendas;
+    function renderConsolidado() {
+        const { du, channels, realVendas, realAltas } = getRegionMetrics();
+        const hist = STATE.historico[currentRegion];
+        document.getElementById('du-indicator').textContent = `DU: ${du.duCorridos} / ${du.duTotal} (Fator ${du.fator.toFixed(2).replace('.', ',')}x)`;
+        document.getElementById('last-update-badge').innerHTML = `<i class="fa-solid fa-square-check"></i> <span><span class="live-dot" title="Sincronização automática ativa"></span>Última Atualização<br>${STATE.config.lastUpdate || 'N/A'}</span>`;
+
+        const totV = channels.reduce((s, c) => s + realVendas[c], 0);
+        const totA = channels.reduce((s, c) => s + realAltas[c], 0);
+        const pv = totV * du.fator, pa = totA * du.fator;
+        const mV = channels.reduce((s, c) => s + (hist.metasNov.vendas[c] || 0), 0);
+        const fV = channels.reduce((s, c) => s + (hist.metasNov.fcVendas[c] || 0), 0);
+        const mA = channels.reduce((s, c) => s + (hist.metasNov.altas[c] || 0), 0);
+        const fA = channels.reduce((s, c) => s + (hist.metasNov.fcAltas[c] || 0), 0);
+
+        const m1Idx = Math.max(0, (hist.meses || []).length - 1);
+        const mesM1Label = (hist.meses && hist.meses[m1Idx]) || 'M-1';
+        const m1ValV = channels.reduce((s, c) => s + ((hist.vendas[c] && hist.vendas[c][m1Idx]) || 0), 0);
+        const m1ValA = channels.reduce((s, c) => s + ((hist.altas[c] && hist.altas[c][m1Idx]) || 0), 0);
+        const m1PctV = m1ValV > 0 ? ((pv / m1ValV) - 1) * 100 : 0;
+        const m1PctA = m1ValA > 0 ? ((pa / m1ValA) - 1) * 100 : 0;
+        const m1Efic = m1ValV > 0 ? (m1ValA / m1ValV) * 100 : 0;
+
+        const pctA = fA ? (pa / fA) * 100 : 0;
+        const pctV = fV ? (pv / fV) * 100 : 0;
+        const efic = totV ? (totA / totV) * 100 : 0;
+
+        const projVColor = pv >= fV ? 'var(--green)' : 'var(--red)';
+        const projAColor = pa >= fA ? 'var(--green)' : 'var(--red)';
+
+        document.getElementById('p1-kpis').innerHTML = `
+            <div class="kpi-card cyan">
+                <div class="kpi-top-row">
+                    <div class="kpi-main-col">
+                        <div class="kpi-label"><span>Vendas (Real / Proj.)</span></div>
+                        <div class="kpi-value">${fmtInt(totV)} <span style="font-size:0.92rem; font-weight:700; color:${projVColor};">/ ${fmtInt(pv)}</span></div>
+                    </div>
+                    <div class="kpi-badges-stack">
+                        <span class="badge ${pctV >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctV)} FC</span>
+                        <span class="badge ${m1PctV >= 0 ? 'badge-good' : 'badge-bad'}" title="Projeção vs M-1 (${mesM1Label}: ${fmtInt(m1ValV)})">M-1: ${m1PctV >= 0 ? '+' : ''}${fmtPct(m1PctV)}</span>
+                    </div>
+                </div>
+                <div class="kpi-sub">Meta: ${fmtInt(mV)} | FC: ${fmtInt(fV)} | M-1 (${mesM1Label}): <b>${fmtInt(m1ValV)}</b></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top-row">
+                    <div class="kpi-main-col">
+                        <div class="kpi-label"><span>Altas (Real / Proj.)</span></div>
+                        <div class="kpi-value">${fmtInt(totA)} <span style="font-size:0.92rem; font-weight:700; color:${projAColor};">/ ${fmtInt(pa)}</span></div>
+                    </div>
+                    <div class="kpi-badges-stack">
+                        <span class="badge ${pctA >= 100 ? 'badge-good' : 'badge-bad'}">${fmtPct(pctA)} FC</span>
+                        <span class="badge ${m1PctA >= 0 ? 'badge-good' : 'badge-bad'}" title="Projeção vs M-1 (${mesM1Label}: ${fmtInt(m1ValA)})">M-1: ${m1PctA >= 0 ? '+' : ''}${fmtPct(m1PctA)}</span>
+                    </div>
+                </div>
+                <div class="kpi-sub">Meta: ${fmtInt(mA)} | FC: ${fmtInt(fA)} | M-1 (${mesM1Label}): <b>${fmtInt(m1ValA)}</b></div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-top-row">
+                    <div class="kpi-main-col">
+                        <div class="kpi-label"><span>Eficiência (Altas / Vendas)</span></div>
+                        <div class="kpi-value" style="color:${efic >= 90 ? 'var(--green)' : (efic >= 85 ? '#B45309' : 'var(--red)')}">${fmtPct(efic)}</div>
+                    </div>
+                    <div class="kpi-badges-stack" style="width:116px;">
+                        <span class="badge ${getEficBadgeClass(m1Efic)}" title="Eficiência M-1 (${mesM1Label}: ${fmtPct(m1Efic)})">M-1 (${mesM1Label}): ${fmtPct(m1Efic)}</span>
+                    </div>
+                </div>
+                <div class="kpi-sub">Régua: &lt;85% Verm. | 85-90% Amar. | &ge;90% Verde</div>
+            </div>
+        `;
+
+        // Renderiza os 2 gráficos lado a lado (Vendas e Altas)
+        chartConsolidadoVendasObj = buildConsolidadoChart('chartConsolidadoVendas', chartConsolidadoVendasObj, 'vendas', du, channels, realVendas, realAltas, hist);
+        chartConsolidadoAltasObj  = buildConsolidadoChart('chartConsolidadoAltas',  chartConsolidadoAltasObj,  'altas',  du, channels, realVendas, realAltas, hist);
+
+        // Matriz Executiva por Canal incorporando Presencial vs Remoto + Pesos (% Part.) + Histórico
+        const tS = hist[tableMetric];
+        const tR = tableMetric === 'altas' ? realAltas : realVendas;
+        const tM = tableMetric === 'altas' ? hist.metasNov.altas : hist.metasNov.vendas;
+        const tF = tableMetric === 'altas' ? hist.metasNov.fcAltas : hist.metasNov.fcVendas;
         const totCur = tableMetric === 'altas' ? totA : totV;
         const projCur = tableMetric === 'altas' ? pa : pv;
+        const sM = channels.reduce((s, c) => s + (tM[c] || 0), 0);
+        const sF = channels.reduce((s, c) => s + (tF[c] || 0), 0);
+        const totHistByMonth = hist.meses.map((_, i) => channels.reduce((s, c) => s + (tS[c][i] || 0), 0));
 
-        let h = `<table><thead><tr><th class="left grp-sep">Canal</th>`;
+        let h = `<table class="tbl-exec-matrix"><thead><tr><th class="left grp-sep">Canal / Grupo</th>`;
         hist.meses.forEach((m, idx) => h += `<th class="hist-col ${idx === hist.meses.length - 1 ? 'grp-sep' : ''}">${m}</th>`);
         h += `<th>Meta</th><th class="grp-sep">FC</th><th>Real</th><th class="grp-sep">Proj.</th><th>% FC</th><th class="grp-sep">M-1</th><th>Efic.</th></tr></thead><tbody>`;
 
+        // Linhas Macro: Presencial (Lojas + PaP + AA) e Remoto (Inside Sales + Digital) com pesos (% Part.)
+        const macroGroups = [
+            { label: 'PRESENCIAL', sub: 'Lojas + PaP + AA', list: ['Lojas', 'PaP', 'AA'], extraCls: '' },
+            { label: 'REMOTO', sub: 'IS + Digital', list: ['Inside Sales', 'Digital'], extraCls: 'row-macro-last' }
+        ];
+
+        macroGroups.forEach(grp => {
+            const gHist = hist.meses.map((_, i) => grp.list.reduce((s, c) => s + (tS[c][i] || 0), 0));
+            const gMeta = grp.list.reduce((s, c) => s + (tM[c] || 0), 0);
+            const gFc   = grp.list.reduce((s, c) => s + (tF[c] || 0), 0);
+            const gReal = grp.list.reduce((s, c) => s + (tR[c] || 0), 0);
+            const gProj = gReal * du.fator;
+            const gM1   = gHist[m1Idx] || 0;
+            const gPctFc = gFc > 0 ? (gProj / gFc) * 100 : 0;
+            const gM1Pct = gM1 > 0 ? ((gProj / gM1) - 1) * 100 : 0;
+
+            const gRealV = grp.list.reduce((s, c) => s + (realVendas[c] || 0), 0);
+            const gRealA = grp.list.reduce((s, c) => s + (realAltas[c] || 0), 0);
+            const gEfic  = gRealV > 0 ? (gRealA / gRealV) * 100 : 0;
+
+            h += `<tr class="row-macro ${grp.extraCls}">
+                <td class="left grp-sep" title="${grp.label} (${grp.sub})">
+                    <div class="macro-vol">${grp.label}</div>
+                    <div class="macro-share">${grp.sub}</div>
+                </td>`;
+
+            gHist.forEach((v, idx) => {
+                const wPct = totHistByMonth[idx] > 0 ? (v / totHistByMonth[idx]) * 100 : 0;
+                h += `<td class="hist-col ${idx === gHist.length - 1 ? 'grp-sep' : ''}">
+                    <div class="macro-vol">${fmtInt(v)}</div>
+                    <div class="macro-share">${fmtPct(wPct)}</div>
+                </td>`;
+            });
+
+            const wMeta = sM > 0 ? (gMeta / sM) * 100 : 0;
+            const wFc   = sF > 0 ? (gFc / sF) * 100 : 0;
+            const wReal = totCur > 0 ? (gReal / totCur) * 100 : 0;
+            const wProj = projCur > 0 ? (gProj / projCur) * 100 : 0;
+
+            h += `<td><div class="macro-vol">${fmtInt(gMeta)}</div><div class="macro-share">${fmtPct(wMeta)}</div></td>
+                  <td class="grp-sep"><div class="macro-vol">${fmtInt(gFc)}</div><div class="macro-share">${fmtPct(wFc)}</div></td>
+                  <td><div class="macro-vol">${fmtInt(gReal)}</div><div class="macro-share">${fmtPct(wReal)}</div></td>
+                  <td class="grp-sep"><div class="macro-vol" style="color:var(--evo-blue);">${fmtInt(gProj)}</div><div class="macro-share">${fmtPct(wProj)}</div></td>
+                  <td class="${gPctFc >= 100 ? 'val-green' : 'val-red'}">${fmtPct(gPctFc)}</td>
+                  <td class="grp-sep ${gM1Pct >= 0 ? 'val-green' : 'val-red'}">${gM1Pct >= 0 ? '+' : ''}${fmtPct(gM1Pct)}</td>
+                  <td class="${getEficClass(gEfic)}">${fmtPct(gEfic)}</td>
+            </tr>`;
+        });
+
+        // Canais Individuais
         channels.forEach(c => {
             const r = tR[c], p = r * du.fator, m = tM[c] || 0, fc = tF[c] || 0, out = tS[c][m1Idx] || 0, pFc = fc ? (p/fc)*100 : 0, m1 = out ? ((p/out)-1)*100 : 0;
             const eficReal = realVendas[c] > 0 ? (realAltas[c] / realVendas[c]) * 100 : 0;
@@ -1893,13 +2057,12 @@
                   <td class="${getEficClass(eficReal)}">${fmtPct(eficReal)}</td></tr>`;
         });
 
-        const sM = channels.reduce((s, c) => s + (tM[c] || 0), 0), sF = channels.reduce((s, c) => s + (tF[c] || 0), 0);
         const totM1 = channels.reduce((s, c) => s + (tS[c][m1Idx] || 0), 0);
         const totM1Pct = totM1 ? ((projCur/totM1)-1)*100 : 0;
         const totPctF = sF ? (projCur/sF)*100 : 0;
 
         h += `<tr class="row-total"><td class="left grp-sep">REG. ${currentRegion}</td>`;
-        hist.meses.forEach((_, i) => h += `<td class="hist-col ${i === hist.meses.length - 1 ? 'grp-sep' : ''}">${fmtInt(channels.reduce((s, c) => s + tS[c][i], 0))}</td>`);
+        hist.meses.forEach((_, i) => h += `<td class="hist-col ${i === hist.meses.length - 1 ? 'grp-sep' : ''}">${fmtInt(totHistByMonth[i])}</td>`);
         h += `<td>${fmtInt(sM)}</td><td class="grp-sep">${fmtInt(sF)}</td><td>${fmtInt(totCur)}</td><td class="grp-sep">${fmtInt(projCur)}</td>
               <td class="${totPctF >= 100 ? 'val-green' : 'val-red'}">${fmtPct(totPctF)}</td>
               <td class="grp-sep ${totM1Pct >= 0 ? 'val-green' : 'val-red'}">${totM1Pct >= 0 ? '+' : ''}${fmtPct(totM1Pct)}</td>
@@ -3500,7 +3663,7 @@
         });
         document.getElementById('p6-podium').innerHTML = pOd || '<p style="color:var(--text-muted);font-weight:500;font-size:0.8rem;padding:0 10px;">Nenhum agente atingiu simultaneamente os Gatilhos 1 (Eficiência &ge; 80%) e 2 (Altas &ge; 100%) até o momento.</p>';
 
-        let hAg = `<table><thead><tr>
+        let hAg = `<table class="tbl-rk"><thead><tr>
             <th>RK</th><th class="left">Agente de Negócio</th><th class="grp-sep">Área</th>
             <th>Proj. Altas</th><th>Proj. Ativações</th><th class="grp-sep">% Portab.</th>
             <th class="grp-sep">Eficiência (% Global)</th><th>Prêmio</th>
@@ -3548,7 +3711,7 @@
         });
         document.getElementById('p7-podium').innerHTML = pLd || '<p style="color:var(--text-muted);font-weight:500;font-size:0.8rem;padding:0 10px;">Nenhum líder projetando atingir simultaneamente os Gatilhos 1 (Eficiência &ge; 80%) e 2 (Altas &ge; 100%) até o momento.</p>';
 
-        let hL = `<table><thead><tr>
+        let hL = `<table class="tbl-rk"><thead><tr>
             <th>RK</th><th class="left">Líder</th><th class="grp-sep">Área</th>
             <th>Proj. Altas</th><th>Proj. Ativações</th><th class="grp-sep">% Portab.</th>
             <th class="grp-sep">Eficiência (% Global)</th><th>Prêmio</th>
@@ -3572,7 +3735,7 @@
         document.getElementById('p7-leaders-rk').innerHTML = hL || '<p style="padding:10px">Sem dados de liderança.</p>';
 
         // 3. RK Bko (Aba 8)
-        let hBko = `<table><thead><tr><th>RK</th><th class="left grp-sep">Analista Bko</th><th>Propostas</th><th class="grp-sep">Instaladas</th><th>Eficiência Operacional Bko</th></tr></thead><tbody>`;
+        let hBko = `<table class="tbl-rk"><thead><tr><th>RK</th><th class="left grp-sep">Analista Bko</th><th>Propostas</th><th class="grp-sep">Instaladas</th><th>Eficiência Operacional Bko</th></tr></thead><tbody>`;
         bkoRk.forEach((b, i) => {
             hBko += `<tr><td><b>${i + 1}º</b></td><td class="left grp-sep"><b>${b.nome}</b></td><td>${fmtInt(b.propostas)}</td><td class="grp-sep">${fmtInt(b.altas)}</td><td class="${getEficClass(b.efic)}">${fmtPct(b.efic)}</td></tr>`;
         });
