@@ -1064,14 +1064,17 @@
     <section class="panel" id="p4">
         <div class="card-box">
             <div class="box-header">
-                <div class="box-title"><i class="fa-solid fa-users"></i> Performance Individual por Canal (Histórico, Meta, Real, Projeção & Eficiência)</div>
+                <div class="box-title" id="p4-main-title"><i class="fa-solid fa-users"></i> Performance Individual por Canal (Histórico, Meta, Real, Projeção & Eficiência)</div>
                 <div class="filter-bar">
                     <button class="pill-btn active" onclick="setChannelFilter('Lojas', this)">Lojas</button>
                     <button class="pill-btn" onclick="setChannelFilter('PaP', this)">PaP Próprio</button>
                     <button class="pill-btn" onclick="setChannelFilter('AA', this)">Parceiros AA</button>
                     <button class="pill-btn" onclick="setChannelFilter('Inside Sales', this)">Inside Sales</button>
                     <button class="pill-btn" onclick="setChannelFilter('Digital', this)">Digital</button>
-                    <input type="text" id="search-seller" placeholder="Buscar nome ou área..." oninput="renderCanaisPanel()">
+                    <span style="width:1px; height:18px; background:#CBD5E1; margin:0 2px;"></span>
+                    <button class="pill-btn" style="border-color:#93C5FD;" onclick="setChannelFilter('ProdConsolidada', this)"><i class="fa-solid fa-gauge-high"></i> Prod. Consolidada</button>
+                    <button class="pill-btn" style="border-color:#93C5FD;" onclick="setChannelFilter('ProdDiaria', this)"><i class="fa-solid fa-fire"></i> Prod. Diária</button>
+                    <input type="text" id="search-seller" placeholder="Buscar nome, UND ou canal..." oninput="renderCanaisPanel()">
                     <span id="p4-hist-controls" style="display:inline-flex; align-items:center; gap:6px;"></span>
                 </div>
             </div>
@@ -2513,9 +2516,243 @@
         return out;
     }
 
+    let prodSubChannelFilter = 'ALL'; // 'ALL', 'Lojas', 'PaP'
+    let prodDailyMetric = 'vendas';   // 'vendas', 'altas'
+
+    function setProdSubChannel(sub, el) {
+        prodSubChannelFilter = sub;
+        renderCanaisPanel();
+    }
+
+    function setProdDailyMetric(m) {
+        prodDailyMetric = m;
+        renderCanaisPanel();
+    }
+
+    function renderAgentesProdutividade(mode, du, blReg, query) {
+        const ctrlEl = document.getElementById('p4-hist-controls');
+        if (ctrlEl) {
+            let btns = `
+                <button class="pill-btn ${prodSubChannelFilter === 'ALL' ? 'active' : ''}" onclick="setProdSubChannel('ALL')">Lojas + PaP</button>
+                <button class="pill-btn ${prodSubChannelFilter === 'Lojas' ? 'active' : ''}" onclick="setProdSubChannel('Lojas')">Só Lojas</button>
+                <button class="pill-btn ${prodSubChannelFilter === 'PaP' ? 'active' : ''}" onclick="setProdSubChannel('PaP')">Só PaP</button>
+            `;
+            if (mode === 'ProdDiaria') {
+                btns += `
+                    <span style="width:1px; height:16px; background:#CBD5E1; margin:0 2px;"></span>
+                    <button class="pill-btn ${prodDailyMetric === 'vendas' ? 'active' : ''}" onclick="setProdDailyMetric('vendas')">Vendas Diárias</button>
+                    <button class="pill-btn ${prodDailyMetric === 'altas' ? 'active' : ''}" onclick="setProdDailyMetric('altas')">Altas Diárias</button>
+                `;
+            }
+            ctrlEl.innerHTML = btns;
+        }
+
+        // Base fechada de Agentes de Negócio ativos (Lojas e PaP) da regional
+        const agMap = {};
+        STATE.agents.forEach(a => {
+            if (a[2] !== currentRegion || a[7] === 'Inativo') return;
+            if (a[4] !== 'Lojas' && a[4] !== 'PaP') return;
+            if (prodSubChannelFilter !== 'ALL' && a[4] !== prodSubChannelFilter) return;
+            const k = normName(a[0]);
+            agMap[k] = {
+                key: k,
+                nome: a[0].toUpperCase().trim(),
+                un: a[3] || '-',
+                ch: a[4],
+                ar: (a[5] || '').trim(),
+                mV: Number(a[8]) || 0,
+                mA: Number(a[9]) || 0,
+                v: 0,
+                a: 0,
+                dailyV: Array(31).fill(0),
+                dailyA: Array(31).fill(0)
+            };
+        });
+
+        blReg.forEach(r => {
+            const k = normName(r[4]);
+            if (!k || !agMap[k]) return;
+            const day = parseInt((r[0].split('-')[2] || '0'), 10);
+            const v = Number(r[6]) || 0;
+            const a = Number(r[7]) || 0;
+            agMap[k].v += v;
+            agMap[k].a += a;
+            if (day >= 1 && day <= 31) {
+                agMap[k].dailyV[day - 1] += v;
+                agMap[k].dailyA[day - 1] += a;
+            }
+        });
+
+        const list = Object.values(agMap)
+            .filter(it => !query || normName(it.nome).includes(query) || normName(it.un).includes(query) || normName(it.ch).includes(query) || normName(it.ar).includes(query))
+            .sort((a, b) => a.nome.localeCompare(b.nome));
+
+        if (mode === 'ProdConsolidada') {
+            const duCorr = du.duCorridos || 1;
+            const totV = list.reduce((s, x) => s + x.v, 0);
+            const totA = list.reduce((s, x) => s + x.a, 0);
+            const avgProdV = list.length > 0 ? (totV / list.length) / duCorr : 0;
+            const avgProdA = list.length > 0 ? (totA / list.length) / duCorr : 0;
+
+            let h = `<div class="units-scroll-wrap"><table class="tbl-unidades" style="font-size:0.72rem;">
+                <thead>
+                    <tr>
+                        <th colspan="7" style="background:#0B2563; color:#FFFFFF; text-align:left; padding:0.35rem 0.6rem; font-size:0.76rem; letter-spacing:0.02em;">
+                            Agentes de Negócio - Consolidado &nbsp;<span style="font-weight:500; font-size:0.68rem; color:#93C5FD;">(DU Corridos: ${duCorr.toFixed(1).replace('.', ',')} | Base: ${list.length} agentes Lojas & PaP)</span>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="left sticky-col" style="min-width:230px; max-width:290px;">Vendedor</th>
+                        <th style="min-width:115px;">UND</th>
+                        <th style="min-width:75px;">Canal</th>
+                        <th style="min-width:75px;">Vendas</th>
+                        <th style="min-width:75px;">Altas</th>
+                        <th style="min-width:95px;">Prod. Vendas</th>
+                        <th style="min-width:95px;">Prod. Altas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row-total row-unit-hdr">
+                        <td class="left sticky-col"><b>Total / Média Agentes (${list.length})</b></td>
+                        <td>-</td>
+                        <td>Lojas + PaP</td>
+                        <td><b>${fmtInt(totV)}</b></td>
+                        <td><b>${fmtInt(totA)}</b></td>
+                        <td class="${avgProdV >= 1 ? 'hm-good' : 'hm-bad'}"><b>${avgProdV.toFixed(2).replace('.', ',')}</b></td>
+                        <td class="${avgProdA >= 1 ? 'hm-good' : 'hm-bad'}"><b>${avgProdA.toFixed(2).replace('.', ',')}</b></td>
+                    </tr>`;
+
+            list.forEach(ag => {
+                const prodV = ag.v / duCorr;
+                const prodA = ag.a / duCorr;
+                const metaDiaV = du.duTotal > 0 ? ag.mV / du.duTotal : 0;
+                const metaDiaA = du.duTotal > 0 ? ag.mA / du.duTotal : 0;
+                h += `<tr>
+                    <td class="left sticky-col" title="${ag.nome} (${ag.ar})">${ag.nome}</td>
+                    <td>${ag.un}</td>
+                    <td><span class="badge ${ag.ch === 'PaP' ? 'badge-cyan' : ''}" style="${ag.ch === 'Lojas' ? 'background:#E2E8F0;color:#1E293B;' : ''}">${ag.ch}</span></td>
+                    <td><b>${fmtInt(ag.v)}</b></td>
+                    <td><b>${fmtInt(ag.a)}</b></td>
+                    <td class="${prodV >= 1 ? 'hm-good' : 'hm-bad'}" title="Prod. Vendas: ${prodV.toFixed(2).replace('.', ',')} / dia (Meta diária: ${metaDiaV.toFixed(2).replace('.', ',')})">${prodV.toFixed(2).replace('.', ',')}</td>
+                    <td class="${prodA >= 1 ? 'hm-good' : 'hm-bad'}" title="Prod. Altas: ${prodA.toFixed(2).replace('.', ',')} / dia (Meta diária: ${metaDiaA.toFixed(2).replace('.', ',')})">${prodA.toFixed(2).replace('.', ',')}</td>
+                </tr>`;
+            });
+
+            h += `</tbody></table></div>`;
+            document.getElementById('p4-sellers-table').innerHTML = h;
+            return;
+        }
+
+        // mode === 'ProdDiaria' (Mapa de Calor)
+        const dtParts = (STATE.config.dtInicial || '2026-11-01').split('-').map(Number);
+        const daysInMonth = new Date(dtParts[0], dtParts[1], 0).getDate();
+        const holidays = new Set(STATE.config.feriados || []);
+        const maxDay = du.maxDayNum || 17;
+        const metricLabel = prodDailyMetric === 'altas' ? 'Altas Diárias' : 'Vendas Diárias';
+
+        // Pré-calcula dias úteis corridos (excluindo Domingos e Feriados) para contagem de Dias Zerados
+        const workingDaysElapsed = [];
+        for (let d = 1; d <= maxDay; d++) {
+            const dtObj = new Date(dtParts[0], dtParts[1] - 1, d);
+            const dow = dtObj.getDay();
+            const iso = dtObj.toISOString().slice(0, 10);
+            if (dow !== 0 && !holidays.has(iso)) {
+                workingDaysElapsed.push(d);
+            }
+        }
+
+        let h = `<div class="units-scroll-wrap"><table class="tbl-unidades" style="font-size:0.65rem;">
+            <thead>
+                <tr>
+                    <th colspan="${3 + daysInMonth + 3}" style="background:#0B2563; color:#FFFFFF; text-align:left; padding:0.32rem 0.55rem; font-size:0.75rem; letter-spacing:0.02em;">
+                        Agentes de Negócio - ${metricLabel} &nbsp;<span style="font-weight:500; font-size:0.67rem; color:#93C5FD;">(Verde: Dia com produção | Vermelho: Dia zerado | DU TT: ${du.duTotal.toFixed(1).replace('.', ',')})</span>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="left sticky-col" style="min-width:195px; max-width:230px;">Vendedor</th>
+                    <th style="min-width:96px;">UND</th>
+                    <th style="min-width:48px;">Canal</th>`;
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            h += `<th style="min-width:23px; padding:0.18rem 0.10rem;">${d}</th>`;
+        }
+        h += `<th style="min-width:44px; background:#CBD5E1;">DU TT</th>
+              <th style="min-width:58px; background:#CBD5E1;">Dias<br>Zerados</th>
+              <th style="min-width:48px; background:#CBD5E1;">% DZ</th>
+            </tr></thead><tbody>`;
+
+        // Linha resumo da equipe no topo
+        const dailyTeamTot = Array(daysInMonth).fill(0);
+        let sumDiasZerados = 0;
+        list.forEach(ag => {
+            const arr = prodDailyMetric === 'altas' ? ag.dailyA : ag.dailyV;
+            for (let d = 1; d <= maxDay; d++) dailyTeamTot[d - 1] += arr[d - 1];
+            const dz = workingDaysElapsed.reduce((cnt, d) => cnt + (arr[d - 1] === 0 ? 1 : 0), 0);
+            sumDiasZerados += dz;
+        });
+        const avgDz = list.length > 0 ? sumDiasZerados / list.length : 0;
+        const avgPctDz = du.duTotal > 0 ? (avgDz / du.duTotal) * 100 : 0;
+
+        h += `<tr class="row-total row-unit-hdr">
+            <td class="left sticky-col"><b>Total / Média Equipe (${list.length})</b></td>
+            <td>-</td>
+            <td>Lojas+PaP</td>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+            if (d > maxDay) {
+                h += `<td class="hm-future"></td>`;
+            } else {
+                h += `<td><b>${dailyTeamTot[d - 1]}</b></td>`;
+            }
+        }
+        h += `<td><b>${du.duTotal.toFixed(1).replace('.', ',')}</b></td>
+              <td><b>${avgDz.toFixed(1).replace('.', ',')}</b></td>
+              <td><b>${fmtPct(avgPctDz)}</b></td>
+        </tr>`;
+
+        list.forEach(ag => {
+            const arr = prodDailyMetric === 'altas' ? ag.dailyA : ag.dailyV;
+            const diasZerados = workingDaysElapsed.reduce((cnt, d) => cnt + (arr[d - 1] === 0 ? 1 : 0), 0);
+            const pctDz = du.duTotal > 0 ? (diasZerados / du.duTotal) * 100 : 0;
+
+            h += `<tr>
+                <td class="left sticky-col" title="${ag.nome} (${ag.ar})">${ag.nome}</td>
+                <td>${ag.un}</td>
+                <td>${ag.ch}</td>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                if (d > maxDay) {
+                    h += `<td class="hm-future"></td>`;
+                } else {
+                    const val = arr[d - 1];
+                    h += `<td class="${val > 0 ? 'hm-good' : 'hm-bad'}">${val}</td>`;
+                }
+            }
+            h += `<td style="font-weight:600;">${du.duTotal.toFixed(1).replace('.', ',')}</td>
+                  <td style="font-weight:600;">${diasZerados.toFixed(1).replace('.', ',')}</td>
+                  <td style="font-weight:700; color:${pctDz > 50 ? 'var(--red)' : 'var(--text-main)'};">${fmtPct(pctDz)}</td>
+            </tr>`;
+        });
+
+        h += `</tbody></table></div>`;
+        document.getElementById('p4-sellers-table').innerHTML = h;
+    }
+
     function renderCanaisPanel() {
         const { du, blReg, realVendas, realAltas } = getRegionMetrics();
         const query = normName(document.getElementById('search-seller').value);
+        const titleEl = document.getElementById('p4-main-title');
+        if (titleEl) {
+            if (channelFilter === 'ProdConsolidada') {
+                titleEl.innerHTML = `<i class="fa-solid fa-gauge-high"></i> Produtividade Consolidada — Agentes de Negócio (Lojas & PaP)`;
+            } else if (channelFilter === 'ProdDiaria') {
+                titleEl.innerHTML = `<i class="fa-solid fa-fire"></i> Produtividade Diária (Mapa de Calor) — Agentes de Negócio (Lojas & PaP)`;
+            } else {
+                titleEl.innerHTML = `<i class="fa-solid fa-users"></i> Performance Individual por Canal (Histórico, Meta, Real, Projeção & Eficiência)`;
+            }
+        }
+        if (channelFilter === 'ProdConsolidada' || channelFilter === 'ProdDiaria') {
+            renderAgentesProdutividade(channelFilter, du, blReg, query);
+            return;
+        }
         const hist = STATE.historico[currentRegion];
         const meses = hist.meses || [];
         const totalMeses = meses.length;
