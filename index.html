@@ -735,26 +735,38 @@
         #p10 td {
             padding: 0.18rem 0.20rem;
         }
+        #p10-prodrules-card {
+            padding: 0.36rem 0.60rem !important;
+            gap: 0.25rem !important;
+        }
         #p10-prodrules-table th {
-            font-size: 0.67rem !important;
-            padding: 0.36rem 0.55rem !important;
-            line-height: 1.25 !important;
+            font-size: 0.60rem !important;
+            padding: 0.15rem 0.40rem !important;
+            line-height: 1.05 !important;
+        }
+        #p10-prodrules-table th.th-vendas-grp,
+        #p10-prodrules-table th.th-altas-grp {
+            font-size: 0.63rem !important;
+            padding: 0.16rem 0.40rem !important;
         }
         #p10-prodrules-table td {
-            padding: 0.36rem 0.55rem !important;
-            font-size: 0.76rem !important;
+            padding: 0.14rem 0.40rem !important;
+            font-size: 0.71rem !important;
+            line-height: 1.05 !important;
+            vertical-align: middle !important;
         }
         #p10-prodrules-table td input[type="number"] {
-            width: 82px !important;
-            height: 28px !important;
-            padding: 3px 6px !important;
-            font-size: 0.80rem !important;
+            width: 68px !important;
+            height: 20px !important;
+            padding: 1px 4px !important;
+            font-size: 0.73rem !important;
             font-weight: 700 !important;
             text-align: center !important;
             background: #FFFBEB !important;
             border: 1.5px solid #C59B27 !important;
-            border-radius: 5px !important;
+            border-radius: 4px !important;
             color: #0F172A !important;
+            line-height: 1 !important;
         }
         #p10-agents-crud td input[type="number"],
         #p10-aa-crud td input[type="number"] {
@@ -1283,7 +1295,7 @@
                 <div id="import-feedback" style="font-size:0.70rem; color:var(--green); font-weight:600;"></div>
             </div>
 
-            <div class="card-box">
+            <div class="card-box" id="p10-prodrules-card">
                 <div class="box-header">
                     <div class="box-title"><i class="fa-solid fa-sliders"></i> Matriz de Regras de Produtividade & Rampagem (3 Meses — Progressão por Terços)</div>
                     <div class="filter-bar" id="p10-prodrules-controls"></div>
@@ -4301,27 +4313,22 @@
                 <td><b>${lbl}</b></td>
                 <td class="grp-sep">
                     <input type="number" min="1" max="200" step="1" value="${Number(t.pct) || 0}"
-                           style="width:62px; padding:3px 2px; font-size:0.75rem; text-align:center; font-weight:700; background:#FFFBEB; border:1px solid #C59B27;"
-                           onchange="updateProdRule('${reg}', ${idx}, 'pct', this.value)"> %
+                           onchange="updateProdRule('${reg}', ${idx}, 'pct', this.value)"><span style="font-weight:600; color:var(--text-muted); margin-left:3px;">%</span>
                 </td>
                 <td>
                     <input type="number" min="0" step="0.01" value="${(Number(t.vPaP) || 0).toFixed(2)}"
-                           style="width:72px; padding:3px 2px; font-size:0.75rem; text-align:center; font-weight:700; background:#FFFBEB; border:1px solid #C59B27;"
                            onchange="updateProdRule('${reg}', ${idx}, 'vPaP', this.value)">
                 </td>
                 <td class="grp-sep">
                     <input type="number" min="0" step="0.01" value="${(Number(t.vAR) || 0).toFixed(2)}"
-                           style="width:72px; padding:3px 2px; font-size:0.75rem; text-align:center; font-weight:700; background:#FFFBEB; border:1px solid #C59B27;"
                            onchange="updateProdRule('${reg}', ${idx}, 'vAR', this.value)">
                 </td>
                 <td>
                     <input type="number" min="0" step="0.01" value="${(Number(t.aPaP) || 0).toFixed(2)}"
-                           style="width:72px; padding:3px 2px; font-size:0.75rem; text-align:center; font-weight:700; background:#FFFBEB; border:1px solid #C59B27;"
                            onchange="updateProdRule('${reg}', ${idx}, 'aPaP', this.value)">
                 </td>
                 <td>
                     <input type="number" min="0" step="0.01" value="${(Number(t.aAR) || 0).toFixed(2)}"
-                           style="width:72px; padding:3px 2px; font-size:0.75rem; text-align:center; font-weight:700; background:#FFFBEB; border:1px solid #C59B27;"
                            onchange="updateProdRule('${reg}', ${idx}, 'aAR', this.value)">
                 </td>
             </tr>`;
