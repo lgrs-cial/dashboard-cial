@@ -757,9 +757,9 @@
             vertical-align: middle !important;
         }
         #p10-prodrules-table td input[type="number"] {
-            width: 42px !important;
-            padding: 2px 2px !important;
-            font-size: 0.66rem !important;
+            width: 46px !important;
+            padding: 1px 2px !important;
+            font-size: 0.63rem !important;
             font-weight: 700 !important;
             text-align: center !important;
             background: #FFFBEB !important;
@@ -1436,7 +1436,8 @@
                     <div class="box-header">
                         <div class="box-title"><i class="fa-solid fa-sitemap"></i> Capacidade Máxima de Vagas por Líder</div>
                         <div class="filter-bar" id="p10-capacity-controls">
-                            <!-- JS fará o preenchimento dos botões REG. SP e REG. RJ aqui -->
+                            <button class="pill-btn active" onclick="setCapacityRegion('SP', this)">REG. SP</button>
+                            <button class="pill-btn" onclick="setCapacityRegion('RJ', this)">REG. RJ</button>
                         </div>
                     </div>
                     <div class="table-wrap" id="p10-capacity-table" style="box-shadow:none; border:none; width:100%;">
@@ -5059,6 +5060,7 @@
         renderProdRulesEditor();
         renderAgentsCrudTable();
         renderAaCrudTable();
+        renderCapacityTable();
     }
 
     function resetSimulator() {
@@ -6279,8 +6281,8 @@
                 html += `
                 <tr>
                     <td class="left"><b>${lider}</b></td>
-                    <td><input type="number" value="${c.vagasAR || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasAR', this.value)" style="width:42px; padding:2px 2px; font-size:0.66rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
-                    <td><input type="number" value="${c.vagasPaP || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasPaP', this.value)" style="width:42px; padding:2px 2px; font-size:0.66rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
+                    <td><input type="number" value="${c.vagasAR || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasAR', this.value)" style="width:44px; padding:1px 2px; font-size:0.63rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
+                    <td><input type="number" value="${c.vagasPaP || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasPaP', this.value)" style="width:44px; padding:1px 2px; font-size:0.63rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
                     <td class="grp-sep"><b>${total}</b></td>
                 </tr>`;
             });
@@ -6305,19 +6307,7 @@
         if(typeof pushCloudState === 'function') pushCloudState(false);
     }
     
-    // Injeção da tabela logo no desbloqueio:
-    const oldUnlockAdmin = window.unlockAdminPanel;
-    window.unlockAdminPanel = function() {
-        if(oldUnlockAdmin) oldUnlockAdmin();
-        const capControls = document.getElementById('p10-capacity-controls');
-        if(capControls && !capControls.innerHTML.includes('REG. SP')) {
-            capControls.innerHTML = `
-                <button class="pill-btn active" onclick="setCapacityRegion('SP', this)">REG. SP</button>
-                <button class="pill-btn" onclick="setCapacityRegion('RJ', this)">REG. RJ</button>
-            `;
-            renderCapacityTable();
-        }
-    };
+
 
 </script>
 </body>
