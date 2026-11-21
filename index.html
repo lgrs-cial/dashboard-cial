@@ -4524,7 +4524,34 @@
         if (remoteStr === STATE.config.lastUpdate) return false;
 
         Object.assign(STATE.config, remote.config);
-        if (remote.historico) STATE.historico = remote.historico;
+        if (remote.historico) {
+            const preservedSP = {
+                metasVendasHist: STATE.historico.SP.metasVendasHist,
+                realVendasHist: STATE.historico.SP.realVendasHist,
+                metasAltasHist: STATE.historico.SP.metasAltasHist,
+                realAltasHist: STATE.historico.SP.realAltasHist
+            };
+            const preservedRJ = {
+                metasVendasHist: STATE.historico.RJ.metasVendasHist,
+                realVendasHist: STATE.historico.RJ.realVendasHist,
+                metasAltasHist: STATE.historico.RJ.metasAltasHist,
+                realAltasHist: STATE.historico.RJ.realAltasHist
+            };
+            STATE.historico = remote.historico;
+            
+            if (!STATE.historico.SP.metasVendasHist && preservedSP.metasVendasHist) {
+                STATE.historico.SP.metasVendasHist = preservedSP.metasVendasHist;
+                STATE.historico.SP.realVendasHist = preservedSP.realVendasHist;
+                STATE.historico.SP.metasAltasHist = preservedSP.metasAltasHist;
+                STATE.historico.SP.realAltasHist = preservedSP.realAltasHist;
+            }
+            if (!STATE.historico.RJ.metasVendasHist && preservedRJ.metasVendasHist) {
+                STATE.historico.RJ.metasVendasHist = preservedRJ.metasVendasHist;
+                STATE.historico.RJ.realVendasHist = preservedRJ.realVendasHist;
+                STATE.historico.RJ.metasAltasHist = preservedRJ.metasAltasHist;
+                STATE.historico.RJ.realAltasHist = preservedRJ.realAltasHist;
+            }
+        }
         if (remote.agents) STATE.agents = remote.agents;
         if (remote.bl) STATE.bl = remote.bl;
         if (remote.movel) STATE.movel = remote.movel;
