@@ -1307,12 +1307,12 @@
                 <div class="card-box">
                     <div class="box-header">
                         <div class="box-title"><i class="fa-solid fa-mobile-retro"></i> Metas, Admissão & Portabilidade — Vendedores</div>
-                        <span style="font-size:0.62rem; color:var(--text-muted);">Admissão define Rampagem | Bko: Líder Brenna Moura</span>
+                        <div class="filter-bar" id="p10-agents-reg-controls"></div>
                     </div>
                     <div style="background:#F1F5F9; border:1px solid #CBD5E1; border-radius:5px; padding:6px 8px; display:flex; flex-direction:column; gap:5px;">
                         <div class="filter-bar">
                             <input type="text" id="new-ag-nome" placeholder="Nome Exato BI" style="min-width:130px; flex:1.5;">
-                            <select id="new-ag-reg" style="width:48px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
+                            <select id="new-ag-reg" onchange="setAgentsCrudRegion(this.value)" style="width:48px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
                             <input type="text" id="new-ag-uni" placeholder="Unidade (ex: GRS)" style="width:94px;">
                             <select id="new-ag-canal" onchange="if(this.value==='Bko' && !document.getElementById('new-ag-lider').value) document.getElementById('new-ag-lider').value='BRENNA MOURA';" style="width:92px;"><option value="Lojas">Lojas</option><option value="PaP">PaP</option><option value="Inside Sales">Inside Sales</option><option value="Bko">Bko</option></select>
                             <input type="text" id="new-ag-lider" placeholder="Líder" style="width:105px;">
@@ -1326,19 +1326,23 @@
                             <button class="btn" style="padding:5px 12px;" onclick="addAgentManual()"><i class="fa-solid fa-plus"></i> Inserir</button>
                         </div>
                     </div>
+                    <div class="filter-bar" style="justify-content:space-between;">
+                        <input type="text" id="p10-search-agent" placeholder="Filtrar vendedor, canal ou líder..." oninput="renderAgentsCrudTable()" style="flex:1; min-width:160px;">
+                        <span style="font-size:0.61rem; color:var(--text-muted);">Admissão define Rampagem | Bko: Brenna Moura</span>
+                    </div>
                     <div class="table-wrap" style="max-height:290px; overflow-y:auto;" id="p10-agents-crud"></div>
                 </div>
 
                 <div class="card-box">
                     <div class="box-header">
                         <div class="box-title"><i class="fa-solid fa-handshake"></i> Parceiros AA (De-Para BI & Metas)</div>
-                        <span style="font-size:0.62rem; color:var(--text-muted);">Fantasia + Razão Social BI</span>
+                        <div class="filter-bar" id="p10-aa-reg-controls"></div>
                     </div>
                     <div style="background:#F1F5F9; border:1px solid #CBD5E1; border-radius:5px; padding:6px 8px; display:flex; flex-direction:column; gap:5px;">
                         <div class="filter-bar">
                             <input type="text" id="new-aa-fantasia" placeholder="Nome Fantasia" style="min-width:95px; flex:1;">
                             <input type="text" id="new-aa-raz" placeholder="Razão Social BI" style="min-width:125px; flex:1.3;">
-                            <select id="new-aa-reg" style="width:48px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
+                            <select id="new-aa-reg" onchange="setAaCrudRegion(this.value)" style="width:48px;"><option value="SP">SP</option><option value="RJ">RJ</option></select>
                         </div>
                         <div class="filter-bar" style="justify-content:space-between;">
                             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -1348,6 +1352,10 @@
                             </div>
                             <button class="btn" style="padding:5px 12px;" onclick="addAaManual()"><i class="fa-solid fa-plus"></i> Inserir AA</button>
                         </div>
+                    </div>
+                    <div class="filter-bar" style="justify-content:space-between;">
+                        <input type="text" id="p10-search-aa" placeholder="Filtrar parceiro AA ou razão social..." oninput="renderAaCrudTable()" style="flex:1; min-width:160px;">
+                        <span style="font-size:0.61rem; color:var(--text-muted);">Fantasia + Razão Social BI</span>
                     </div>
                     <div class="table-wrap" style="max-height:290px; overflow-y:auto;" id="p10-aa-crud"></div>
                 </div>
@@ -1800,6 +1808,9 @@
 
     function setRegion(reg) {
         currentRegion = reg;
+        prodRulesEditRegion = reg;
+        agentsCrudRegion = reg;
+        aaCrudRegion = reg;
         const hdrEl = document.getElementById('hdr-region-label');
         if (hdrEl) hdrEl.textContent = '| REG. SUDESTE';
         document.querySelectorAll('.reg-btn').forEach(b => {
@@ -4386,6 +4397,146 @@
         if (fb) fb.textContent = 'Líder atualizado e sincronizado na Nuvem!';
     }
 
+    let agentsCrudRegion = 'SP';
+    let aaCrudRegion = 'SP';
+
+    function setAgentsCrudRegion(reg) {
+        agentsCrudRegion = reg;
+        const selEl = document.getElementById('new-ag-reg');
+        if (selEl) selEl.value = reg;
+        renderAgentsCrudTable();
+    }
+
+    function setAaCrudRegion(reg) {
+        aaCrudRegion = reg;
+        const selEl = document.getElementById('new-aa-reg');
+        if (selEl) selEl.value = reg;
+        renderAaCrudTable();
+    }
+
+    function renderAgentsCrudTable() {
+        const ctrlEl = document.getElementById('p10-agents-reg-controls');
+        const tblEl = document.getElementById('p10-agents-crud');
+        if (!tblEl) return;
+
+        const agReg = agentsCrudRegion || currentRegion || 'SP';
+        const spCount = STATE.agents.filter(a => a[2] === 'SP' && a[7] !== 'Inativo').length;
+        const rjCount = STATE.agents.filter(a => a[2] === 'RJ' && a[7] !== 'Inativo').length;
+
+        if (ctrlEl) {
+            ctrlEl.innerHTML = `
+                <span style="font-size:0.65rem; color:var(--text-muted); font-weight:500;">Regional:</span>
+                <button class="pill-btn ${agReg === 'SP' ? 'active' : ''}" onclick="setAgentsCrudRegion('SP')">REG. SP (${spCount})</button>
+                <button class="pill-btn ${agReg === 'RJ' ? 'active' : ''}" onclick="setAgentsCrudRegion('RJ')">REG. RJ (${rjCount})</button>
+            `;
+        }
+        const selEl = document.getElementById('new-ag-reg');
+        if (selEl && selEl.value !== agReg) selEl.value = agReg;
+
+        const q = normName((document.getElementById('p10-search-agent') && document.getElementById('p10-search-agent').value) || '');
+        let hCrud = `<table><thead><tr><th class="left">Vendedor / Bko (${agReg})</th><th>Canal</th><th>Admissão</th><th>Líder</th><th>M. Altas</th><th>M. Ativ.</th><th class="grp-sep">Portab.</th><th>Ação</th></tr></thead><tbody>`;
+
+        const sortedAgents = STATE.agents
+            .map((a, idx) => ({ data: a, idx: idx }))
+            .filter(item => item.data[2] === agReg && item.data[7] !== 'Inativo')
+            .filter(item => !q || normName(item.data[0]).includes(q) || normName(item.data[4]).includes(q) || normName(item.data[13]).includes(q) || normName(item.data[3]).includes(q))
+            .sort((a, b) => a.data[0].localeCompare(b.data[0]));
+
+        if (sortedAgents.length === 0) {
+            hCrud += `<tr><td colspan="8" style="padding:14px; color:var(--text-muted); font-style:italic;">Nenhum colaborador encontrado para REG. ${agReg}.</td></tr>`;
+        } else {
+            sortedAgents.forEach(item => {
+                const a = item.data;
+                const idx = item.idx;
+                const isSeller = (a[4] === 'Lojas' || a[4] === 'PaP' || a[4] === 'Inside Sales');
+                const allowPort = (a[4] === 'Bko' || a[4] === 'Lojas' || a[4] === 'PaP');
+                const mAltasCell = isSeller
+                    ? `<input type="number" min="0" value="${Number(a[9]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentMeta(${idx}, 'altas', this.value)">`
+                    : `<span style="color:var(--text-muted);">-</span>`;
+                const mAtivCell = isSeller
+                    ? `<input type="number" min="0" value="${Number(a[10]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentMeta(${idx}, 'ativ', this.value)">`
+                    : `<span style="color:var(--text-muted);">-</span>`;
+                const portCell = allowPort
+                    ? `<input type="number" min="0" value="${Number(a[12]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentPort(${idx}, this.value)">`
+                    : `<span style="color:var(--text-muted);">-</span>`;
+                const admIsoVal = parseAdmIso(a[6]) || '';
+                const admCell = isSeller
+                    ? `<input type="date" value="${admIsoVal}" style="width:94px; padding:1px 2px; font-size:0.61rem; border:1px solid #CBD5E1;" onchange="updateAgentAdm(${idx}, this.value)">`
+                    : `<span style="color:var(--text-muted);">-</span>`;
+                hCrud += `<tr>
+                    <td class="left" title="${a[0]} (${a[3]})"><span class="p10-ag-name"><b>${a[0]}</b></span></td>
+                    <td>${a[4]}</td>
+                    <td>${admCell}</td>
+                    <td><input type="text" value="${(a[13] || a[5] || '').toUpperCase()}" style="width:112px; padding:2px 4px; font-size:0.63rem; font-weight:600; border:1px solid #CBD5E1; text-transform:uppercase;" onchange="updateAgentLeader(${idx}, this.value)"></td>
+                    <td>${mAltasCell}</td>
+                    <td>${mAtivCell}</td>
+                    <td class="grp-sep">${portCell}</td>
+                    <td><button class="btn danger" onclick="removeAgent(${idx})"><i class="fa-solid fa-trash-can"></i></button></td>
+                </tr>`;
+            });
+        }
+        hCrud += `</tbody></table>`;
+        tblEl.innerHTML = hCrud;
+    }
+
+    function renderAaCrudTable() {
+        const ctrlEl = document.getElementById('p10-aa-reg-controls');
+        const tblEl = document.getElementById('p10-aa-crud');
+        if (!tblEl) return;
+
+        const aaReg = aaCrudRegion || currentRegion || 'SP';
+        const aaMetas = STATE.config.aaMetas || {};
+        const allKeys = Object.keys(aaMetas);
+        const spAaCount = allKeys.filter(k => aaMetas[k] && aaMetas[k].reg === 'SP').length;
+        const rjAaCount = allKeys.filter(k => aaMetas[k] && aaMetas[k].reg === 'RJ').length;
+
+        if (ctrlEl) {
+            ctrlEl.innerHTML = `
+                <span style="font-size:0.65rem; color:var(--text-muted); font-weight:500;">Regional:</span>
+                <button class="pill-btn ${aaReg === 'SP' ? 'active' : ''}" onclick="setAaCrudRegion('SP')">REG. SP (${spAaCount})</button>
+                <button class="pill-btn ${aaReg === 'RJ' ? 'active' : ''}" onclick="setAaCrudRegion('RJ')">REG. RJ (${rjAaCount})</button>
+            `;
+        }
+        const selEl = document.getElementById('new-aa-reg');
+        if (selEl && selEl.value !== aaReg) selEl.value = aaReg;
+
+        const q = normName((document.getElementById('p10-search-aa') && document.getElementById('p10-search-aa').value) || '');
+        const filteredKeys = allKeys
+            .filter(fantasia => aaMetas[fantasia] && aaMetas[fantasia].reg === aaReg)
+            .filter(fantasia => !q || normName(fantasia).includes(q) || normName(aaMetas[fantasia].raz || '').includes(q))
+            .sort((a, b) => {
+                if (normName(a) === 'N IDENTIFICADO') return 1;
+                if (normName(b) === 'N IDENTIFICADO') return -1;
+                return a.localeCompare(b);
+            });
+
+        let hAa = `<table><thead><tr><th class="left">Parceiro AA (${aaReg})</th><th class="grp-sep">Reg</th><th>M. Vnd</th><th>M. Alt</th><th>M. Ativ.</th><th>Status</th><th>Ação</th></tr></thead><tbody>`;
+        if (filteredKeys.length === 0) {
+            hAa += `<tr><td colspan="7" style="padding:14px; color:var(--text-muted); font-style:italic;">Nenhum parceiro AA cadastrado para REG. ${aaReg}. Utilize o formulário acima para inserir.</td></tr>`;
+        } else {
+            filteredKeys.forEach(fantasia => {
+                const info = aaMetas[fantasia];
+                const encKey = encodeURIComponent(fantasia);
+                const razTitle = info.raz ? `${fantasia} — ${info.raz}` : fantasia;
+                const razSub = (info.raz && info.raz !== fantasia) ? `<div class="p10-aa-name" style="font-size:0.57rem; color:var(--text-muted); font-weight:400;">${info.raz}</div>` : '';
+                hAa += `<tr>
+                    <td class="left" title="${razTitle}"><div class="p10-aa-name"><b>${fantasia}</b></div>${razSub}</td>
+                    <td class="grp-sep">${info.reg}</td>
+                    <td><input type="number" min="0" value="${Number(info.mV) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mV', this.value)"></td>
+                    <td><input type="number" min="0" value="${Number(info.mA) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mA', this.value)"></td>
+                    <td><input type="number" min="0" value="${Number(info.mAtiv) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mAtiv', this.value)"></td>
+                    <td><select style="width:60px; font-weight:600; border:1px solid #CBD5E1;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'status', this.value)">
+                        <option value="Ativo" ${info.status === 'Ativo' ? 'selected' : ''}>Ativo</option>
+                        <option value="Inativo" ${info.status === 'Inativo' ? 'selected' : ''}>Inativo</option>
+                    </select></td>
+                    <td><button class="btn danger" title="Excluir Parceiro AA" onclick="removeAaPartner(decodeURIComponent('${encKey}'))"><i class="fa-solid fa-trash-can"></i></button></td>
+                </tr>`;
+            });
+        }
+        hAa += `</tbody></table>`;
+        tblEl.innerHTML = hAa;
+    }
+
     function renderAdminAndSim() {
         const { combinedSimList } = computeRankings();
         const sel = document.getElementById('sim-agent-select');
@@ -4439,74 +4590,9 @@
         }
         renderBlockedEmailsList();
 
-        prodRulesEditRegion = currentRegion;
         renderProdRulesEditor();
-        let hCrud = `<table><thead><tr><th class="left">Vendedor / Bko</th><th>Canal</th><th>Admissão</th><th>Líder</th><th>M. Altas</th><th>M. Ativ.</th><th class="grp-sep">Portab.</th><th>Ação</th></tr></thead><tbody>`;
-        
-        const sortedAgents = STATE.agents
-            .map((a, idx) => ({ data: a, idx: idx }))
-            .filter(item => item.data[2] === currentRegion && item.data[7] !== 'Inativo')
-            .sort((a, b) => a.data[0].localeCompare(b.data[0]));
-            
-        sortedAgents.forEach(item => {
-            const a = item.data;
-            const idx = item.idx;
-            const isSeller = (a[4] === 'Lojas' || a[4] === 'PaP' || a[4] === 'Inside Sales');
-            const allowPort = (a[4] === 'Bko' || a[4] === 'Lojas' || a[4] === 'PaP');
-            const mAltasCell = isSeller
-                ? `<input type="number" min="0" value="${Number(a[9]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentMeta(${idx}, 'altas', this.value)">`
-                : `<span style="color:var(--text-muted);">-</span>`;
-            const mAtivCell = isSeller
-                ? `<input type="number" min="0" value="${Number(a[10]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentMeta(${idx}, 'ativ', this.value)">`
-                : `<span style="color:var(--text-muted);">-</span>`;
-            const portCell = allowPort
-                ? `<input type="number" min="0" value="${Number(a[12]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentPort(${idx}, this.value)">`
-                : `<span style="color:var(--text-muted);">-</span>`;
-            const liderShort = (a[13] || a[5] || '').replace(/^AN\s*-\s*/i, '');
-            const admIsoVal = parseAdmIso(a[6]) || '';
-            const admCell = isSeller
-                ? `<input type="date" value="${admIsoVal}" style="width:94px; padding:1px 2px; font-size:0.61rem; border:1px solid #CBD5E1;" onchange="updateAgentAdm(${idx}, this.value)">`
-                : `<span style="color:var(--text-muted);">-</span>`;
-            hCrud += `<tr>
-                <td class="left" title="${a[0]}"><span class="p10-ag-name"><b>${a[0]}</b></span></td>
-                <td>${a[4]}</td>
-                <td>${admCell}</td>
-                <td><input type="text" value="${(a[13] || a[5] || '').toUpperCase()}" style="width:112px; padding:2px 4px; font-size:0.63rem; font-weight:600; border:1px solid #CBD5E1; text-transform:uppercase;" onchange="updateAgentLeader(${idx}, this.value)"></td>
-                <td>${mAltasCell}</td>
-                <td>${mAtivCell}</td>
-                <td class="grp-sep">${portCell}</td>
-                <td><button class="btn danger" onclick="removeAgent(${idx})"><i class="fa-solid fa-trash-can"></i></button></td>
-            </tr>`;
-        });
-        hCrud += `</tbody></table>`;
-        document.getElementById('p10-agents-crud').innerHTML = hCrud;
-
-        if (document.getElementById('new-aa-reg')) document.getElementById('new-aa-reg').value = currentRegion;
-        if (document.getElementById('new-ag-reg')) document.getElementById('new-ag-reg').value = currentRegion;
-
-        const aaMetas = STATE.config.aaMetas || {};
-        let hAa = `<table><thead><tr><th class="left">Parceiro AA</th><th class="grp-sep">Reg</th><th>M. Vnd</th><th>M. Alt</th><th>M. Ativ.</th><th>Status</th><th>Ação</th></tr></thead><tbody>`;
-        Object.keys(aaMetas).forEach(fantasia => {
-            const info = aaMetas[fantasia];
-            if (info.reg !== currentRegion) return;
-            const encKey = encodeURIComponent(fantasia);
-            const razTitle = info.raz ? `${fantasia} — ${info.raz}` : fantasia;
-            const razSub = (info.raz && info.raz !== fantasia) ? `<div class="p10-aa-name" style="font-size:0.57rem; color:var(--text-muted); font-weight:400;">${info.raz}</div>` : '';
-            hAa += `<tr>
-                <td class="left" title="${razTitle}"><div class="p10-aa-name"><b>${fantasia}</b></div>${razSub}</td>
-                <td class="grp-sep">${info.reg}</td>
-                <td><input type="number" min="0" value="${Number(info.mV) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mV', this.value)"></td>
-                <td><input type="number" min="0" value="${Number(info.mA) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mA', this.value)"></td>
-                <td><input type="number" min="0" value="${Number(info.mAtiv) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'mAtiv', this.value)"></td>
-                <td><select style="width:60px; font-weight:600; border:1px solid #CBD5E1;" onchange="updateAaMeta(decodeURIComponent('${encKey}'), 'status', this.value)">
-                    <option value="Ativo" ${info.status === 'Ativo' ? 'selected' : ''}>Ativo</option>
-                    <option value="Inativo" ${info.status === 'Inativo' ? 'selected' : ''}>Inativo</option>
-                </select></td>
-                <td><button class="btn danger" title="Excluir Parceiro AA" onclick="removeAaPartner(decodeURIComponent('${encKey}'))"><i class="fa-solid fa-trash-can"></i></button></td>
-            </tr>`;
-        });
-        hAa += `</tbody></table>`;
-        document.getElementById('p10-aa-crud').innerHTML = hAa;
+        renderAgentsCrudTable();
+        renderAaCrudTable();
     }
 
     function resetSimulator() {
@@ -4719,11 +4805,12 @@
         document.getElementById('new-aa-ma').value = '';
         if (document.getElementById('new-aa-mativ')) document.getElementById('new-aa-mativ').value = '';
 
+        aaCrudRegion = reg;
         stampLastUpdate();
         renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
-        if (fb) fb.textContent = `Parceiro AA "${fantasia}" cadastrado e sincronizado na nuvem!`;
+        if (fb) fb.textContent = `Parceiro AA "${fantasia}" (${reg}) cadastrado e sincronizado na nuvem!`;
     }
 
     function removeAaPartner(fantasia) {
@@ -4757,9 +4844,12 @@
         const apelido = firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
         STATE.agents.push([nome, apelido, reg, uni, canal, uni, admInp, 'Ativo', Math.round(metaAltas * 1.25), metaAltas, metaAtiv, 4, 0, lider]);
         document.getElementById('new-ag-nome').value = '';
+        agentsCrudRegion = reg;
         stampLastUpdate();
         renderAll();
         pushCloudState(false);
+        const fb = document.getElementById('import-feedback');
+        if (fb) fb.textContent = `Colaborador "${nome}" (${reg}) cadastrado e sincronizado na nuvem!`;
     }
 
     function removeAgent(idx) {
