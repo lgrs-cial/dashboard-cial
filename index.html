@@ -6253,37 +6253,113 @@
         renderCapacityTable();
     }
 
+    function addCapacityLeader() {
+        const inputEl = document.getElementById('new-cap-lider');
+        if (!inputEl) return;
+        const nome = inputEl.value.trim().toUpperCase();
+        if (!nome) { alert('Informe o nome do líder.'); return; }
+        
+        if (!STATE.config.leaderCapacity) STATE.config.leaderCapacity = {};
+        if (!STATE.config.leaderCapacity[currentCapacityRegion]) STATE.config.leaderCapacity[currentCapacityRegion] = {};
+        
+        if (STATE.config.leaderCapacity[currentCapacityRegion][nome]) {
+            alert('Este líder já existe nesta regional.');
+            return;
+        }
+        
+        STATE.config.leaderCapacity[currentCapacityRegion][nome] = { vagasAR: 0, vagasPaP: 0 };
+        inputEl.value = '';
+        renderCapacityTable();
+        renderRankings();
+        renderAdminAndSim();
+        if (typeof pushCloudState === 'function') pushCloudState(false);
+    }
+
+    function removeCapacityLeader(nome) {
+        if (!confirm(`Deseja realmente excluir o líder ${nome} das vagas? Isso não afeta os agentes, apenas a capacidade configurada.`)) return;
+        if (STATE.config.leaderCapacity && STATE.config.leaderCapacity[currentCapacityRegion] && STATE.config.leaderCapacity[currentCapacityRegion][nome]) {
+            delete STATE.config.leaderCapacity[currentCapacityRegion][nome];
+            renderCapacityTable();
+            renderRankings();
+            renderAdminAndSim();
+            if (typeof pushCloudState === 'function') pushCloudState(false);
+        }
+    }
+
     function renderCapacityTable() {
         const wrap = document.getElementById('p10-capacity-table');
         if(!wrap) return;
         
         let html = `
-        <table style="border: 1px solid var(--border-col); border-radius: 5px; width:100%; table-layout:auto;">
+        <div style="background:#F1F5F9; border-bottom:1px solid #CBD5E1; padding:6px 8px; display:flex; gap:6px; align-items:center;">
+            <input type="text" id="new-cap-lider" placeholder="Nome Exato do Líder..." style="flex:1; font-size:0.67rem; padding:3px 5px;">
+            <button class="btn" style="padding:4px 8px; font-size:0.65rem;" onclick="addCapacityLeader()"><i class="fa-solid fa-plus"></i> Inserir Líder</button>
+        </div>
+        <table style="border: none; width:100%; table-layout:auto;">
             <thead>
                 <tr>
-                    <th class="left" style="background:#DCE7F5; color:var(--evo-navy);">Líder</th>
-                    <th style="background:#DCE7F5; color:var(--evo-navy);">Vagas AR</th>
-                    <th style="background:#DCE7F5; color:var(--evo-navy);">Vagas PaP</th>
-                    <th class="grp-sep" style="background:#DCE7F5; color:var(--evo-navy);">Total</th>
+                    <th rowspan="2" class="left" style="background:#DCE7F5; color:var(--evo-navy); min-width:110px;">Área & Líder</th>
+                    <th colspan="2" class="grp-sep" style="background:#DCE7F5; color:var(--evo-navy);">AR (Lojas)</th>
+                    <th colspan="2" class="grp-sep" style="background:#DCE7F5; color:var(--evo-navy);">PaP Próprio</th>
+                    <th rowspan="2" class="grp-sep" style="background:#DCE7F5; color:var(--evo-navy);">Total<br>Vagas</th>
+                    <th rowspan="2" style="background:#DCE7F5; color:var(--evo-navy);">Ação</th>
+                </tr>
+                <tr>
+                    <th style="background:#EBF3FE; color:var(--evo-navy);">Ocupadas</th>
+                    <th class="grp-sep" style="background:#EBF3FE; color:var(--evo-navy);">Livres (Vagas)</th>
+                    <th style="background:#E5F6FD; color:var(--evo-navy);">Ocupadas</th>
+                    <th class="grp-sep" style="background:#E5F6FD; color:var(--evo-navy);">Livres (Vagas)</th>
                 </tr>
             </thead>
             <tbody>`;
             
         const caps = (STATE.config.leaderCapacity && STATE.config.leaderCapacity[currentCapacityRegion]) || {};
-        const leaders = Object.keys(caps).sort();
         
-        if(leaders.length === 0) {
-            html += `<tr><td colspan="4" style="color:var(--text-muted);">Nenhum líder configurado na aba.</td></tr>`;
+        const activeLeadersMap = {};
+        STATE.agents.forEach(a => {
+            if (a[2] === currentCapacityRegion && a[7] === 'Ativo' && (a[4] === 'Lojas' || a[4] === 'PaP')) {
+                const ln = (a[13] || '').toUpperCase().trim();
+                if (ln && ln !== 'KELVIN ANZORENA' && ln !== 'LÍDER AA RJ') {
+                    if (!activeLeadersMap[ln]) activeLeadersMap[ln] = { oLojas: 0, oPaP: 0, canais: new Set() };
+                    if (a[4] === 'Lojas') { activeLeadersMap[ln].oLojas++; activeLeadersMap[ln].canais.add('UND'); }
+                    if (a[4] === 'PaP') { activeLeadersMap[ln].oPaP++; activeLeadersMap[ln].canais.add('PaP'); }
+                }
+            }
+        });
+
+        const allLeaders = new Set([...Object.keys(caps), ...Object.keys(activeLeadersMap)]);
+        const sortedLeaders = Array.from(allLeaders).sort();
+        
+        if(sortedLeaders.length === 0) {
+            html += `<tr><td colspan="7" style="color:var(--text-muted); padding:14px;">Nenhum líder configurado ou ativo na regional.</td></tr>`;
         } else {
-            leaders.forEach(lider => {
-                const c = caps[lider];
-                const total = (c.vagasAR || 0) + (c.vagasPaP || 0);
+            sortedLeaders.forEach(lider => {
+                const c = caps[lider] || { vagasAR: 0, vagasPaP: 0 };
+                const act = activeLeadersMap[lider] || { oLojas: 0, oPaP: 0, canais: new Set() };
+                
+                let areaStr = Array.from(act.canais).join(' + ');
+                if (!areaStr) {
+                    if (c.vagasAR > 0 && c.vagasPaP > 0) areaStr = 'UND + PaP';
+                    else if (c.vagasPaP > 0) areaStr = 'PaP';
+                    else areaStr = 'UND';
+                }
+
+                const totalVagas = (c.vagasAR || 0) + (c.vagasPaP || 0);
+                const totalOcup = act.oLojas + act.oPaP;
+                const totalGeral = totalVagas + totalOcup;
+
                 html += `
                 <tr>
-                    <td class="left"><b>${lider}</b></td>
-                    <td><input type="number" value="${c.vagasAR || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasAR', this.value)" style="width:44px; padding:1px 2px; font-size:0.63rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
-                    <td><input type="number" value="${c.vagasPaP || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasPaP', this.value)" style="width:44px; padding:1px 2px; font-size:0.63rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
-                    <td class="grp-sep"><b>${total}</b></td>
+                    <td class="left">
+                        <div style="font-size:0.6rem; color:#0369A1; font-weight:700; background:#E0F2FE; display:inline-block; padding:1px 4px; border-radius:3px; margin-bottom:2px;">${areaStr}</div>
+                        <div style="font-weight:700; color:var(--text-main); font-size:0.68rem; line-height:1.1;">${lider}</div>
+                    </td>
+                    <td><b style="color:var(--evo-blue); font-size:0.75rem;">${act.oLojas}</b></td>
+                    <td class="grp-sep"><input type="number" value="${c.vagasAR || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasAR', this.value)" style="width:40px; padding:1px 2px; font-size:0.63rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
+                    <td><b style="color:var(--evo-cyan); font-size:0.75rem;">${act.oPaP}</b></td>
+                    <td class="grp-sep"><input type="number" value="${c.vagasPaP || 0}" min="0" onchange="updateLeaderCapacity('${lider}', 'vagasPaP', this.value)" style="width:40px; padding:1px 2px; font-size:0.63rem; font-weight:700; text-align:center; background:#FFFBEB; border:1px solid #C59B27; border-radius:4px;"></td>
+                    <td class="grp-sep"><b style="color:var(--evo-navy); font-size:0.75rem;">${totalVagas}</b></td>
+                    <td><button class="btn danger" style="padding:3px 6px; font-size:0.6rem;" onclick="removeCapacityLeader('${lider}')" title="Excluir líder da gestão de vagas"><i class="fa-solid fa-trash"></i></button></td>
                 </tr>`;
             });
         }
