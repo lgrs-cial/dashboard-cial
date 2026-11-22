@@ -1463,7 +1463,7 @@
                         <div class="filter-bar" style="justify-content:space-between;">
                             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                                 <label style="font-weight:600; color:var(--evo-navy);">Admissão: <input type="date" id="new-ag-adm" title="Data de Admissão (Rampagem)" style="width:112px;"></label>
-                                <label style="font-weight:600; color:var(--evo-navy);">Meta Altas: <input type="number" id="new-ag-meta-altas" placeholder="Ex: 12" min="0" style="width:62px; text-align:center; font-weight:600;"></label>
+                                <label style="font-weight:600; color:var(--evo-navy);" title="Para Lojas e PaP, a meta é automática pela Matriz.">Meta Altas: <input type="number" id="new-ag-meta-altas" placeholder="Dinâmico" min="0" style="width:62px; text-align:center; font-weight:600;"></label>
                                 <label style="font-weight:600; color:var(--evo-navy);">Meta Ativ.: <input type="number" id="new-ag-meta-ativ" placeholder="Ex: 5" min="0" style="width:62px; text-align:center; font-weight:600;"></label>
                             </div>
                             <button class="btn" style="padding:5px 12px;" onclick="addAgentManual()"><i class="fa-solid fa-plus"></i> Inserir</button>
@@ -1647,12 +1647,14 @@
             <div class="guide-grid-2">
                 <div class="guide-step-list">
                     <div class="guide-step-item">
-                        <b>Como Funciona a Rampagem Automática (Baseada na Data de Admissão):</b><br>
-                        &bull; O sistema compara o <b>Mês/Ano de Admissão</b> do colaborador com o <b>Mês Vigente</b> do dashboard para enquadrá-lo automaticamente na faixa de produtividade:<br>
-                        &nbsp;&nbsp;&ndash; <b>1º Mês (Mês da admissão):</b> <b>40%</b> da meta cheia (Iniciante: <code>6</code> Vendas / <code>5</code> Altas).<br>
-                        &nbsp;&nbsp;&ndash; <b>2º Mês (1 mês após admissão):</b> <b>70%</b> da meta cheia.<br>
-                        &nbsp;&nbsp;&ndash; <b>3º+ Mês (2 ou mais meses de casa):</b> <b>100%</b> da meta cheia (AR: <code>15</code> Vendas / <code>12</code> Altas • PaP: <code>18</code> Vendas / <code>14</code> Altas).<br>
-                        &bull; <b>Proporcionalidade de Dias Úteis (DU Individual):</b> Se o colaborador entrou no meio do mês (após o dia <code>01</code>), o <code>DU Corridos</code> dele conta somente a partir da data de admissão para não distorcer sua projeção.
+                        <b>Como Funciona a Rampagem Automática & Regra do Dia 13:</b><br>
+                        &bull; As metas de <b>Altas e Vendas</b> dos agentes de Lojas e PaP são calculadas dinamicamente: <code>Matriz de Produtividade Diária (abaixo) &times; DU Total do mês</code>.<br>
+                        &bull; O sistema enquadra o colaborador na faixa com base na <b>Data de Admissão</b> e na <b>Regra do Dia 13</b>:<br>
+                        &nbsp;&nbsp;&ndash; <b>Admissão ATÉ o dia 13:</b> O mês de entrada já é considerado o <b>1º Mês</b>.<br>
+                        &nbsp;&nbsp;&ndash; <b>Admissão APÓS o dia 13:</b> O restante do mês atual <b>e</b> todo o mês seguinte contam ambos como o <b>1º Mês</b> (o 2º Mês só inicia no mês subsequente).<br>
+                        &nbsp;&nbsp;&ndash; <b>Arredondamento:</b> Valores fracionados são arredondados automaticamente para cima (&ge;0,5) ou para baixo (&lt;0,5).<br>
+                        &bull; <b>Líderes:</b> As metas dos líderes refletem a <b>Soma das Metas dos Agentes Ativos</b> + a <b>penalidade de Vagas Abertas</b>, tudo em tempo real.<br>
+                        &bull; <b>Projeção (DU Individual):</b> Se o colaborador entrou após o dia <code>01</code>, os <code>DU Corridos</code> dele contam somente a partir da data de admissão para não distorcer o seu atingimento.
                     </div>
                 </div>
                 <div class="table-wrap">
@@ -2042,49 +2044,66 @@
         }
     }
 
+    function saveLocalStateCache() {
+        try {
+            if (STATE && STATE.config && STATE.config.lastUpdate && STATE.config.lastUpdate !== '00/00/0000 00:00:00') {
+                localStorage.setItem('evo_cached_state_v1', JSON.stringify(STATE));
+            }
+        } catch (e) {}
+    }
+
+    function restoreLocalStateCache() {
+        try {
+            const raw = localStorage.getItem('evo_cached_state_v1');
+            if (!raw) return false;
+            const cached = JSON.parse(raw);
+            if (!cached || !cached.config || !cached.bl || !cached.agents) return false;
+            const cacheTs = parseUpdateTimestamp(cached.config.lastUpdate || '');
+            const localTs = parseUpdateTimestamp(STATE.config.lastUpdate || '');
+            if (cacheTs > localTs) {
+                Object.assign(STATE.config, cached.config);
+                if (cached.historico) STATE.historico = cached.historico;
+                if (cached.agents) STATE.agents = cached.agents;
+                if (cached.bl) STATE.bl = cached.bl;
+                if (cached.movel) STATE.movel = cached.movel;
+                if (cached.unitsHist) STATE.unitsHist = cached.unitsHist;
+                if (cached.movelHist) STATE.movelHist = cached.movelHist;
+                if (cached.movelUnitsHist) STATE.movelUnitsHist = cached.movelUnitsHist;
+                if (cached.movelSellerHist) STATE.movelSellerHist = cached.movelSellerHist;
+                if (cached.sellerHist) STATE.sellerHist = cached.sellerHist;
+                return true;
+            }
+        } catch (e) {}
+        return false;
+    }
+
     async function bootDashboard() {
         if (dashboardBooted) return;
+        dashboardBooted = true;
         adminUnlocked = false;
         const p10L = document.getElementById('p10-locked');
         const p10U = document.getElementById('p10-unlocked');
         if (p10L) p10L.style.display = 'flex';
         if (p10U) p10U.style.display = 'none';
 
+        restoreLocalStateCache();
         normalizeLeaderCapacityState();
+        syncAllAgentGoalsFromMatrix();
 
-        try {
-            openPanel(1);
-        } catch (e) {
-            console.warn('Aviso ao abrir painel inicial:', e);
-        }
+        try { openPanel(1); } catch (e) {}
+        try { renderAll(); } catch (e) { console.error('Erro ao renderizar painéis:', e); }
 
         if (STATE.config.cloudSyncUrl) {
-            const loading = document.getElementById('evo-auth-loading');
-            if (loading) {
-                loading.style.display = 'block';
-                loading.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando dados...';
-            }
-            try {
-                await Promise.race([
-                    checkLiveUpdates(),
-                    new Promise(resolve => setTimeout(resolve, 3500))
-                ]);
-            } catch (e) {
-                console.warn('Timeout/Erro no checkLiveUpdates inicial:', e);
-            }
-            normalizeLeaderCapacityState();
-        }
-
-        dashboardBooted = true;
-        try {
-            renderAll();
-        } catch (e) {
-            console.error('Erro ao renderizar painéis:', e);
+            checkLiveUpdates().then(() => {
+                normalizeLeaderCapacityState();
+                syncAllAgentGoalsFromMatrix();
+            }).catch(() => {});
         }
 
         setInterval(async () => {
             await checkLiveUpdates();
             normalizeLeaderCapacityState();
+            syncAllAgentGoalsFromMatrix();
         }, (STATE.config.cloudSyncUrl ? 6000 : 20000));
     }
 
@@ -3165,14 +3184,17 @@
         const admIso = parseAdmIso(admRaw);
 
         let tierIdx = 2; // Padrão: 3º+ mês (100% meta cheia)
-        let rampBadge = '3º+ (100%)';
+        let rampBadge = `3º+ (${rules[2].pct}%)`;
         if (admIso) {
-            const [admY, admM] = admIso.split('-').map(Number);
-            const monthsDiff = (refY - admY) * 12 + (refM - admM);
-            if (monthsDiff <= 0) {
+            const [admY, admM, admD] = admIso.split('-').map(Number);
+            const rawMonthsDiff = (refY - admY) * 12 + (refM - admM);
+            // Até dia 13: mês atual = 1º mês | Após dia 13: restante do mês + mês seguinte = 1º mês
+            const effectiveDiff = (admD > 13) ? Math.max(0, rawMonthsDiff - 1) : rawMonthsDiff;
+
+            if (effectiveDiff <= 0) {
                 tierIdx = 0;
                 rampBadge = `1º (${rules[0].pct}%)`;
-            } else if (monthsDiff === 1) {
+            } else if (effectiveDiff === 1) {
                 tierIdx = 1;
                 rampBadge = `2º (${rules[1].pct}%)`;
             } else {
@@ -3185,6 +3207,32 @@
         const metaProdV = isPaP ? (Number(tier.vPaP) || 0) : (Number(tier.vAR) || 0);
         const metaProdA = isPaP ? (Number(tier.aPaP) || 0) : (Number(tier.aAR) || 0);
         return { tierIdx, pct: Number(tier.pct) || 100, rampBadge, metaProdV, metaProdA, admIso };
+    }
+
+    function getAgentGoals(a) {
+        const reg = a[2] || currentRegion || 'SP';
+        const canal = (a[4] || '').trim();
+        const mAtiv = Number(a[10]) || 0;
+        const mPort = Number(a[11]) || 0;
+        const ramp = getAgentRampInfo(a[6], canal, reg);
+        if (canal === 'Lojas' || canal === 'PaP') {
+            const duTotal = Number(STATE.config.duTotal) || 21;
+            const mV = Math.round((ramp.metaProdV * duTotal) + 1e-9);
+            const mA = Math.round((ramp.metaProdA * duTotal) + 1e-9);
+            return { mV, mA, mAtiv, mPort, ramp, isAuto: true };
+        }
+        return { mV: Number(a[8]) || 0, mA: Number(a[9]) || 0, mAtiv, mPort, ramp, isAuto: false };
+    }
+
+    function syncAllAgentGoalsFromMatrix() {
+        if (!Array.isArray(STATE.agents)) return;
+        STATE.agents.forEach(a => {
+            if (a && (a[4] === 'Lojas' || a[4] === 'PaP')) {
+                const g = getAgentGoals(a);
+                a[8] = g.mV;
+                a[9] = g.mA;
+            }
+        });
     }
 
     function computeAgentDuCorridos(admIso, du) {
@@ -4951,9 +4999,9 @@
             });
         }
 
+        syncAllAgentGoalsFromMatrix();
         stampLastUpdate();
-        renderProdRulesEditor();
-        renderCanaisPanel();
+        renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
         if (fb) fb.textContent = `Regra de produtividade (${reg}) atualizada e sincronizada!`;
@@ -4962,6 +5010,7 @@
     function updateAgentAdm(idx, val) {
         if (!checkAdminPass()) { renderAll(); return; }
         STATE.agents[idx][6] = (val || '').trim();
+        syncAllAgentGoalsFromMatrix();
         stampLastUpdate();
         renderAll();
         pushCloudState(false);
@@ -5032,8 +5081,12 @@
                 const idx = item.idx;
                 const isSeller = (a[4] === 'Lojas' || a[4] === 'PaP' || a[4] === 'Inside Sales');
                 const allowPort = (a[4] === 'Bko' || a[4] === 'Lojas' || a[4] === 'PaP');
+                const isAutoMeta = (a[4] === 'Lojas' || a[4] === 'PaP');
                 const mAltasCell = isSeller
-                    ? `<input type="number" min="0" value="${Number(a[9]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentMeta(${idx}, 'altas', this.value)">`
+                    ? (isAutoMeta 
+                        ? `<div title="Meta gerada dinamicamente via Matriz de Produtividade x DU Total" style="width:40px; text-align:center; font-weight:700; color:var(--evo-blue); background:#F1F5F9; border:1px solid #CBD5E1; border-radius:4px; padding:1px 0; margin:0 auto; cursor:help;">${Number(a[9]) || 0}</div>`
+                        : `<input type="number" min="0" value="${Number(a[9]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentMeta(${idx}, 'altas', this.value)">`
+                      )
                     : `<span style="color:var(--text-muted);">-</span>`;
                 const mAtivCell = isSeller
                     ? `<input type="number" min="0" value="${Number(a[10]) || 0}" style="width:40px; text-align:center; font-weight:600; background:#FFFBEB; border:1px solid #C59B27;" onchange="updateAgentMeta(${idx}, 'ativ', this.value)">`
@@ -5432,6 +5485,7 @@
         } else {
             STATE.agents.push([nome, apelido, reg, uni, canal, uni, admInp, 'Ativo', Math.round(metaAltas * 1.25), metaAltas, metaAtiv, 4, 0, lider]);
         }
+        syncAllAgentGoalsFromMatrix();
         const totM = ((STATE.historico[reg] && STATE.historico[reg].meses) || []).length || 10;
         if (canal === 'Lojas' || canal === 'PaP' || canal === 'Inside Sales') {
             if (!STATE.sellerHist) STATE.sellerHist = {};
@@ -5934,6 +5988,7 @@
             stampLastUpdate();
             setTimeout(() => { pushCloudState(false); }, 700);
         }
+        saveLocalStateCache();
         if (dashboardBooted) renderAll();
         return true;
     }
