@@ -1941,12 +1941,29 @@
         }
     }
 
+    function normalizeLeaderCapacityState() {
+        if (!STATE.config || !STATE.config.leaderCapacity) return;
+        for (const reg in STATE.config.leaderCapacity) {
+            for (const l in STATE.config.leaderCapacity[reg]) {
+                const c = STATE.config.leaderCapacity[reg][l];
+                if (c && c.vagasAR !== undefined) {
+                    c.livresAR = Number(c.vagasAR) || 0;
+                    c.livresPaP = Number(c.vagasPaP) || 0;
+                    c.ocupadasAR = Number(c.ocupadasAR) || 0;
+                    c.ocupadasPaP = Number(c.ocupadasPaP) || 0;
+                    delete c.vagasAR;
+                    delete c.vagasPaP;
+                }
+            }
+        }
+    }
+
     async function submitDomainAccess(e) {
         if (e) e.preventDefault();
         const inp = document.getElementById('evo-auth-email-input');
         const btn = document.getElementById('evo-auth-submit-btn');
         const btnLabel = document.getElementById('evo-auth-btn-label');
-        const email = (inp ? inp.value : '').trim().toLowerCase();
+        const email = (inp ? inp.value : '').replace(/\s+/g, '').toLowerCase();
 
         if (!isValidCorporateEmail(email)) {
             showAuthGateMessage('Domínio não autorizado. Utilize um e-mail <b>@brasiltecpar.com.br</b> ou <b>@evo.digital</b>.', '');
@@ -2006,15 +2023,116 @@
             return;
         }
 
-        // Modo fallback local (enquanto apiKey não é inserida)
+        // Modo fallback local (sem Firebase SDK / offline)
+        if (btn) btn.disabled = true;
+        if (btnLabel) btnLabel.textContent = 'Carregando painel...';
         try {
             localStorage.setItem('evo_authorized_email', email);
             localStorage.setItem('evo_authorized_ts', String(Date.now()));
         } catch (ex) {}
         showAuthGateMessage('', '');
-        // Libera a tela de login ANTES do carregamento/renderização pesada
         grantDomainUI(email, false);
-        try { await bootDashboard(); } catch(e) { console.error('Erro no boot:', e); }
+        try {
+            await bootDashboard();
+        } catch (err) {
+            console.error('Erro no boot:', err);
+        } finally {
+            if (btn) btn.disabled = false;
+            if (btnLabel) btnLabel.textContent = 'Acessar Painel';
+        }
+    }
+
+    async function bootDashboard() {
+        if (dashboardBooted) return;
+        adminUnlocked = false;
+        const p10L = document.getElementById('p10-locked');
+        const p10U = document.getElementById('p10-unlocked');
+        if (p10L) p10L.style.display = 'flex';
+        if (p10U) p10U.style.display = 'none';
+
+        normalizeLeaderCapacityState();
+
+        try {
+            openPanel(1);
+        } catch (e) {
+            console.warn('Aviso ao abrir painel inicial:', e);
+        }
+
+        if (STATE.config.cloudSyncUrl) {
+            const loading = document.getElementById('evo-auth-loading');
+            if (loading) {
+                loading.style.display = 'block';
+                loading.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando dados...';
+            }
+            try {
+                await Promise.race([
+                    checkLiveUpdates(),
+                    new Promise(resolve => setTimeout(resolve, 3500))
+                ]);
+            } catch (e) {
+                console.warn('Timeout/Erro no checkLiveUpdates inicial:', e);
+            }
+            normalizeLeaderCapacityState();
+        }
+
+        dashboardBooted = true;
+        try {
+            renderAll();
+        } catch (e) {
+            console.error('Erro ao renderizar painéis:', e);
+        }
+
+        setInterval(async () => {
+            await checkLiveUpdates();
+            normalizeLeaderCapacityState();
+        }, (STATE.config.cloudSyncUrl ? 6000 : 20000));
+    }
+
+    async function verifyActiveFirebaseUser(user, freshSignIn = false) {
+        if (!user || !user.email) return false;
+        const email = user.email.trim().toLowerCase();
+        if (!isValidCorporateEmail(email)) {
+            try { await user.delete(); } catch (e) {
+                try { await firebase.auth().signOut(); } catch (e2) {}
+            }
+            try {
+                localStorage.removeItem('evo_authorized_email');
+                localStorage.removeItem('evo_authorized_ts');
+            } catch (ex) {}
+            lockScreenToAuthGate('A conta <b>' + email + '</b> não é permitida. Clique em <b>Entrar com o Google</b> e selecione seu e-mail <b>@brasiltecpar.com.br</b> ou <b>@evo.digital</b>.');
+            return false;
+        }
+        if (isEmailBlocked(email)) {
+            await forceLogoutCorporate('Acesso revogado para <b>' + email + '</b>. Contate a gestão comercial.');
+            return false;
+        }
+        if (freshSignIn) {
+            try {
+                localStorage.setItem('evo_authorized_email', email);
+                localStorage.setItem('evo_authorized_ts', String(Date.now()));
+            } catch (ex) {}
+        } else {
+            const maxDays = Number(STATE.config.sessionMaxDays) || 15;
+            const ts = Number(localStorage.getItem('evo_authorized_ts') || '0');
+            if (ts > 0 && (Date.now() - ts) > (maxDays * 86400000)) {
+                await forceLogoutCorporate('Sua sessão corporativa de ' + maxDays + ' dias expirou. Clique em <b>Entrar com o Google</b> para renovar.');
+                return false;
+            }
+            try {
+                await user.reload();
+                await user.getIdToken(true);
+            } catch (err) {
+                await forceLogoutCorporate('Sua conta Google corporativa foi suspensa ou expirada. Faça login novamente.');
+                return false;
+            }
+            if (!ts) {
+                try { localStorage.setItem('evo_authorized_ts', String(Date.now())); } catch (ex) {}
+            }
+        }
+        // Libera a interface imediatamente antes de renderizar os gráficos
+        grantDomainUI(email, true);
+        await bootDashboard();
+        return true;
     }
 
     function switchCorporateEmail() {
@@ -2026,6 +2144,12 @@
         }
     }
     // -----------------------------------------------------------------------
+
+    
+    if (typeof Chart === 'undefined') {
+        window.Chart = function() { return { destroy() {}, update() {}, data: { datasets: [] } }; };
+        window.Chart.register = function() {};
+    }
 
     if (typeof ChartDataLabels !== 'undefined') {
         Chart.register(ChartDataLabels);
