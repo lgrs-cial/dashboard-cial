@@ -2399,6 +2399,7 @@
         const du = computeBusinessDays();
         const blReg = STATE.bl.filter(r => r[3] === currentRegion);
         const mvReg = STATE.movel.filter(r => {
+            if (r[7] === 'SP' || r[7] === 'RJ') return r[7] === currentRegion;
             const u = (r[2] || '').toUpperCase();
             const isRJ = /\bRJ\b/.test(u);
             return currentRegion === 'SP' ? !isRJ : isRJ;
@@ -4581,6 +4582,7 @@
             const d = computeBusinessDays();
             const bR = STATE.bl.filter(r => r[3] === reg);
             const mR = STATE.movel.filter(r => {
+                if (r[7] === 'SP' || r[7] === 'RJ') return r[7] === reg;
                 const u = (r[2] || '').toUpperCase();
                 const isRJ = /\bRJ\b/.test(u);
                 return reg === 'SP' ? !isRJ : isRJ;
@@ -5001,6 +5003,7 @@
 
         syncAllAgentGoalsFromMatrix();
         stampLastUpdate();
+        saveLocalStateCache();
         renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
@@ -5012,6 +5015,7 @@
         STATE.agents[idx][6] = (val || '').trim();
         syncAllAgentGoalsFromMatrix();
         stampLastUpdate();
+        saveLocalStateCache();
         renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
@@ -5022,6 +5026,7 @@
         if (!checkAdminPass()) { renderAll(); return; }
         STATE.agents[idx][13] = (val || '').trim().toUpperCase();
         stampLastUpdate();
+        saveLocalStateCache();
         renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
@@ -5353,6 +5358,7 @@
         if (!checkAdminPass()) { renderAll(); return; }
         STATE.agents[idx][12] = Math.max(0, parseInt(val, 10) || 0);
         stampLastUpdate();
+        saveLocalStateCache();
         renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
@@ -5369,6 +5375,7 @@
             STATE.agents[idx][10] = num;
         }
         stampLastUpdate();
+        saveLocalStateCache();
         renderAll();
         pushCloudState(false);
         const fb = document.getElementById('import-feedback');
@@ -5515,6 +5522,7 @@
         if (confirm("Tem certeza que deseja inativar/excluir este colaborador? Ocultará seus resultados da visão individual.")) {
             STATE.agents[idx][7] = 'Inativo';
             stampLastUpdate();
+            saveLocalStateCache();
             renderAll();
             pushCloudState(false);
         }
@@ -5530,54 +5538,163 @@
 
         const raw = document.getElementById('bi-paste-area').value.trim();
         if (!raw) {
+            syncAllAgentGoalsFromMatrix();
+            saveLocalStateCache();
             renderAll();
             pushCloudState(false);
-            document.getElementById('import-feedback').textContent = 'Parâmetros, metas e portabilidades atualizados e publicados na Nuvem com sucesso!';
+            const fbEmpty = document.getElementById('import-feedback');
+            if (fbEmpty) {
+                fbEmpty.style.color = 'var(--green)';
+                fbEmpty.textContent = 'Parâmetros, metas e portabilidades atualizados e publicados na Nuvem com sucesso!';
+            }
             return;
         }
 
-        const parsed = Papa.parse(raw, { delimiter: raw.includes('\t') ? '\t' : ',', skipEmptyLines: true }).data;
-        const newBL = [], newMV = [];
+        const delim = raw.includes('\t') ? '\t' : (raw.includes(';') ? ';' : ',');
+        const parsed = Papa.parse(raw, { delimiter: delim, skipEmptyLines: true }).data;
+        const newBL = [], rawMVRows = [];
+
+        function parseExcelNum(val) {
+            if (val === null || val === undefined) return 0;
+            const s = String(val).replace(/R\$/g, '').replace(/\s/g, '').replace(',', '.');
+            return Math.round(parseFloat(s)) || 0;
+        }
+
         function formatData(str) {
+            if (str === null || str === undefined) return null;
+            str = String(str).replace(/^['"]+/, '').trim();
             if (!str) return null;
-            str = str.trim();
-            // Try standard YYYY-MM-DD
-            let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            // YYYY-MM-DD or YYYY/MM/DD
+            let m = str.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
             if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
-            // Try DD/MM/YYYY or DD/MM/YY
-            m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})/);
+            // DD/MM/YYYY or DD-MM-YYYY or DD/MM/YY
+            m = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2}|\d{4})/);
             if (m) {
                 let y = m[3];
-                if (y.length === 2) y = "20" + y; // Assume 2000s for 2-digit years
+                if (y.length === 2) y = "20" + y;
                 return `${y}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+            }
+            // Excel serial date number (e.g. 46348 -> 2026-11-22)
+            if (/^\d{5}(\.\d+)?$/.test(str)) {
+                const serial = Math.floor(Number(str));
+                if (serial >= 40000 && serial <= 60000) {
+                    const dt = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
+                    return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(dt.getUTCDate()).padStart(2, '0')}`;
+                }
             }
             return null;
         }
 
-        parsed.forEach(row => {
-            const dtBL = formatData(row[0]);
-            if (dtBL) {
-                newBL.push([dtBL, (row[1]||'').trim(), (row[2]||'').trim(), (row[3]||'').trim().toUpperCase(), (row[4]||'').trim().toUpperCase(), (row[5]||'').trim().toUpperCase(), parseInt(row[6])||0, parseInt(row[7])||0]);
-            }
-            let mvStart = -1;
-            if (formatData(row[9])) mvStart = 9;
-            else if (formatData(row[8])) mvStart = 8;
-            else if (formatData(row[10])) mvStart = 10;
-            if (mvStart !== -1) {
-                const dtMV = formatData(row[mvStart]);
-                const maybeReg = (row[mvStart + 3] || '').trim().toUpperCase();
-                if (maybeReg === 'SP' || maybeReg === 'RJ') {
-                    newMV.push([dtMV, (row[mvStart+1]||'').trim(), (row[mvStart+2]||'').trim(), (row[mvStart+4]||'').trim().toUpperCase(), (row[mvStart+5]||'').trim().toUpperCase(), parseInt(row[mvStart+6])||0, parseInt(row[mvStart+7])||0]);
-                } else {
-                    newMV.push([dtMV, (row[mvStart+1]||'').trim(), (row[mvStart+2]||'').trim(), (row[mvStart+3]||'').trim().toUpperCase(), (row[mvStart+4]||'').trim().toUpperCase(), parseInt(row[mvStart+5])||0, parseInt(row[mvStart+6])||0]);
+        // Detecta dinamicamente em qual coluna (>= 8) começa o bloco do Móvel (independente de quantas colunas vazias existam no Excel)
+        let lockedMvStart = -1;
+        for (let r = 0; r < Math.min(parsed.length, 30); r++) {
+            const row = parsed[r] || [];
+            for (let c = 8; c <= row.length - 5; c++) {
+                if (formatData(row[c]) && (row[c + 1] || '').trim()) {
+                    lockedMvStart = c;
+                    break;
                 }
             }
+            if (lockedMvStart !== -1) break;
+        }
+
+        let verticalMovelMode = false;
+        parsed.forEach(row => {
+            if (!Array.isArray(row)) return;
+            const firstCellNorm = normName(row[0] || '');
+            const dtBL = formatData(row[0]);
+
+            // Suporte caso o Móvel seja colado abaixo da Banda Larga (em bloco vertical)
+            if (!dtBL && firstCellNorm.includes('MOVEL') && !firstCellNorm.includes('BANDA')) {
+                verticalMovelMode = true;
+                return;
+            }
+
+            if (dtBL) {
+                if (verticalMovelMode) {
+                    rawMVRows.push({ row, start: 0, dt: dtBL });
+                } else {
+                    newBL.push([
+                        dtBL,
+                        (row[1] || '').trim(),
+                        (row[2] || '').trim(),
+                        (row[3] || '').trim().toUpperCase(),
+                        (row[4] || '').trim().toUpperCase(),
+                        (row[5] || '').trim().toUpperCase(),
+                        parseExcelNum(row[6]),
+                        parseExcelNum(row[7])
+                    ]);
+                }
+            }
+
+            // Bloco lateral do Móvel (qualquer coluna c >= 8)
+            let mvStart = -1;
+            if (lockedMvStart !== -1 && formatData(row[lockedMvStart])) {
+                mvStart = lockedMvStart;
+            } else {
+                for (let c = 8; c <= row.length - 5; c++) {
+                    if (formatData(row[c]) && (row[c + 1] || '').trim()) {
+                        mvStart = c;
+                        if (lockedMvStart === -1) lockedMvStart = c;
+                        break;
+                    }
+                }
+            }
+            if (mvStart !== -1) {
+                const dtMV = formatData(row[mvStart]);
+                if (dtMV) rawMVRows.push({ row, start: mvStart, dt: dtMV });
+            }
         });
+
+        // Verifica se o bloco Móvel possui coluna explícita de Regional (SP / RJ) na posição start + 3
+        const hasMvRegCol = rawMVRows.some(item => {
+            const v3 = (item.row[item.start + 3] || '').trim().toUpperCase();
+            return v3 === 'SP' || v3 === 'RJ';
+        });
+
+        const newMV = rawMVRows.map(item => {
+            const { row, start, dt } = item;
+            const canal = (row[start + 1] || '').trim();
+            const uni   = (row[start + 2] || '').trim();
+            if (hasMvRegCol) {
+                const reg = (row[start + 3] || '').trim().toUpperCase();
+                const vend = (row[start + 4] || '').trim().toUpperCase();
+                const parc = (row[start + 5] || '').trim().toUpperCase();
+                const vnd  = parseExcelNum(row[start + 6]);
+                const ativ = parseExcelNum(row[start + 7]);
+                return reg ? [dt, canal, uni, vend, parc, vnd, ativ, reg] : [dt, canal, uni, vend, parc, vnd, ativ];
+            } else {
+                const vend = (row[start + 3] || '').trim().toUpperCase();
+                const parc = (row[start + 4] || '').trim().toUpperCase();
+                const vnd  = parseExcelNum(row[start + 5]);
+                const ativ = parseExcelNum(row[start + 6]);
+                return [dt, canal, uni, vend, parc, vnd, ativ];
+            }
+        });
+
         if (newBL.length > 0) STATE.bl = newBL;
         if (newMV.length > 0) STATE.movel = newMV;
+
+        syncAllAgentGoalsFromMatrix();
+        saveLocalStateCache();
         renderAll();
         pushCloudState(false);
-        document.getElementById('import-feedback').textContent = `Base processada com sucesso! ${newBL.length} linhas de Banda Larga e ${newMV.length} linhas de Móvel carregadas. Dados publicados automaticamente na Nuvem (reflete em até 6s para toda a equipe)!`;
+
+        const sumBlV = newBL.reduce((s, r) => s + (Number(r[6]) || 0), 0);
+        const sumBlA = newBL.reduce((s, r) => s + (Number(r[7]) || 0), 0);
+        const sumMvV = newMV.reduce((s, r) => s + (Number(r[5]) || 0), 0);
+        const sumMvA = newMV.reduce((s, r) => s + (Number(r[6]) || 0), 0);
+
+        const fbEl = document.getElementById('import-feedback');
+        if (fbEl) {
+            if (newBL.length > 0 && newMV.length === 0) {
+                fbEl.style.color = 'var(--red)';
+                fbEl.textContent = `Atenção: ${newBL.length} linhas de Banda Larga (${sumBlV} vnd / ${sumBlA} altas) carregadas, mas 0 linhas de Móvel foram identificadas na seleção. Verifique se copiou também as colunas do Móvel na BD_Geral!`;
+            } else {
+                fbEl.style.color = 'var(--green)';
+                fbEl.textContent = `Base processada com sucesso! Banda Larga: ${newBL.length} linhas (${sumBlV} vendas / ${sumBlA} altas) | Móvel: ${newMV.length} linhas (${sumMvV} vendas / ${sumMvA} ativações). Publicado na Nuvem!`;
+            }
+        }
     }
 
     function autoFillFirebaseFields(val) {
@@ -6171,6 +6288,7 @@
             const mvH = STATE.movelHist && STATE.movelHist[reg];
             if (!mvH) return;
             const mvR = STATE.movel.filter(r => {
+                if (r[7] === 'SP' || r[7] === 'RJ') return r[7] === reg;
                 const u = (r[2] || '').toUpperCase();
                 return reg === 'SP' ? (u.includes(' SP ') || !u.includes(' RJ ')) : u.includes(' RJ ');
             });
@@ -6252,7 +6370,9 @@
         showHistUnidades = false;
         showHistCanais = false;
         showHistMovel = false;
+        syncAllAgentGoalsFromMatrix();
         stampLastUpdate();
+        saveLocalStateCache();
         renderAll();
         pushCloudState(false);
         document.getElementById('import-feedback').textContent = `Virada para ${novoMesVigente} concluída! O mês ${curMesNome} agora é o novo M-1. Cole a nova BD Geral do mês vigente e clique em "Processar & Publicar na Nuvem".`;
