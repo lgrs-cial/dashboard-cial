@@ -2012,8 +2012,9 @@
             localStorage.setItem('evo_authorized_ts', String(Date.now()));
         } catch (ex) {}
         showAuthGateMessage('', '');
-        await bootDashboard();
+        // Libera a tela de login ANTES do carregamento/renderização pesada
         grantDomainUI(email, false);
+        try { await bootDashboard(); } catch(e) { console.error('Erro no boot:', e); }
     }
 
     function switchCorporateEmail() {
@@ -6081,14 +6082,36 @@
         document.getElementById('p10-unlocked').style.display = 'none';
         openPanel(1);
 
-        // Busca os dados mais recentes da Nuvem ANTES da primeira renderização (elimina piscada de dados antigos no F5)
+        // Limpa estado legado do Firebase no STATE (previne erro de renderização se vier antigo)
+        if (STATE.config.leaderCapacity) {
+            for (let reg in STATE.config.leaderCapacity) {
+                for (let l in STATE.config.leaderCapacity[reg]) {
+                    const c = STATE.config.leaderCapacity[reg][l];
+                    if (c.vagasAR !== undefined) {
+                        c.livresAR = c.vagasAR;
+                        c.livresPaP = c.vagasPaP || 0;
+                        c.ocupadasAR = 0;
+                        c.ocupadasPaP = 0;
+                        delete c.vagasAR;
+                        delete c.vagasPaP;
+                    }
+                }
+            }
+        }
+
+        // Busca os dados mais recentes da Nuvem ANTES da primeira renderização (com Timeout para não travar painel)
         if (STATE.config.cloudSyncUrl) {
             const loading = document.getElementById('evo-auth-loading');
             if (loading) {
                 loading.style.display = 'block';
-                loading.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando dados atualizados...';
+                loading.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando dados...';
             }
-            await checkLiveUpdates();
+            try {
+                await Promise.race([
+                    checkLiveUpdates(),
+                    new Promise(resolve => setTimeout(resolve, 3500))
+                ]);
+            } catch(e) { console.warn("Timeout/Error no checkLiveUpdates inicial", e); }
         }
 
         dashboardBooted = true;
@@ -6224,8 +6247,9 @@
         let savedEmail = '';
         try { savedEmail = localStorage.getItem('evo_authorized_email') || ''; } catch (ex) {}
         if (isValidCorporateEmail(savedEmail) && !isEmailBlocked(savedEmail)) {
-            await bootDashboard();
+            // Libera a interface e carrega dados
             grantDomainUI(savedEmail, false);
+            try { await bootDashboard(); } catch(e) { console.error('Erro no bootDashboard inicial:', e); }
         } else {
             lockScreenToAuthGate(isEmailBlocked(savedEmail) ? 'Acesso revogado para este e-mail.' : '');
             if (inp) setTimeout(() => inp.focus(), 50);
